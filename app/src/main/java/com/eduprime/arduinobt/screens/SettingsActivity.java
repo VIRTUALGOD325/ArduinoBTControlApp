@@ -30,14 +30,14 @@ public class SettingsActivity extends BaseActivity {
         EditText labelC = findViewById(R.id.labelC), cmdC = findViewById(R.id.cmdC);
         EditText labelD = findViewById(R.id.labelD), cmdD = findViewById(R.id.cmdD);
 
-        labelA.setText(prefs.getString("label_a", "TOGGLE LED"));
-        cmdA.setText(prefs.getString("cmd_a", "A"));
+        labelA.setText(prefs.getString("label_a", "LED BLUE"));
+        cmdA.setText(prefs.getString("cmd_a", "LED"));
         labelB.setText(prefs.getString("label_b", "BUZZER"));
         cmdB.setText(prefs.getString("cmd_b", "BZ"));
-        labelC.setText(prefs.getString("label_c", "AUTO MODE"));
-        cmdC.setText(prefs.getString("cmd_c", "AUTO"));
+        labelC.setText(prefs.getString("label_c", "Y PIN"));
+        cmdC.setText(prefs.getString("cmd_c", "Y"));
         labelD.setText(prefs.getString("label_d", "EMERGENCY"));
-        cmdD.setText(prefs.getString("cmd_d", "STOP"));
+        cmdD.setText(prefs.getString("cmd_d", "ESTOP"));
 
         // D-pad commands
         EditText cmdFwd   = findViewById(R.id.cmdForward);

@@ -95,25 +95,90 @@ Open in Android Studio.
 
 ## Arduino Side
 
-Your Arduino sketch should read serial input and act on single-character or short-string commands:
+### Pin Layout
+
+| Pin | Component |
+|-----|-----------|
+| 4   | LED Blue  |
+| 5   | Y         |
+| 6   | Buzzer    |
+| 12  | Motor IN1 |
+| 13  | Motor IN2 |
+| 14 (A0) | Motor ENA (PWM speed) |
+
+### Sketch
 
 ```cpp
-void loop() {
-  if (Serial.available()) {
-    String cmd = Serial.readStringUntil('\n');
-    cmd.trim();
+#include <SoftwareSerial.h>
 
-    if (cmd == "F")    { /* move forward */ }
-    else if (cmd == "B")    { /* move back    */ }
-    else if (cmd == "L")    { /* turn left    */ }
-    else if (cmd == "R")    { /* turn right   */ }
-    else if (cmd == "S")    { /* stop         */ }
-    else if (cmd.startsWith("SPD:")) {
-      int speed = cmd.substring(4).toInt();
-      /* set motor speed */
-    }
+// HC-05 on pins 10 (RX) and 11 (TX) — frees up hardware serial for debugging
+SoftwareSerial bt(10, 11);
+
+// Output pins
+const int PIN_LED    = 4;
+const int PIN_Y      = 5;
+const int PIN_BUZZER = 6;
+const int PIN_IN1    = 12;
+const int PIN_IN2    = 13;
+const int PIN_ENA    = A0;  // pin 14 — PWM speed control
+
+// Toggle states
+bool ledState    = false;
+bool yState      = false;
+bool buzzerState = false;
+
+int motorSpeed = 200;  // 0-255, updated by SPD: command
+
+void setup() {
+  pinMode(PIN_LED,    OUTPUT);
+  pinMode(PIN_Y,      OUTPUT);
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_IN1,    OUTPUT);
+  pinMode(PIN_IN2,    OUTPUT);
+  pinMode(PIN_ENA,    OUTPUT);
+
+  motorStop();
+  bt.begin(9600);
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (bt.available()) {
+    String cmd = bt.readStringUntil('\n');
+    cmd.trim();
+    Serial.println("CMD: " + cmd);
+    handleCommand(cmd);
   }
+}
+
+void handleCommand(String cmd) {
+  if      (cmd == "F")     motorForward();
+  else if (cmd == "B")     motorBack();
+  else if (cmd == "L")     motorLeft();
+  else if (cmd == "R")     motorRight();
+  else if (cmd == "S")     motorStop();
+  else if (cmd == "ESTOP") emergencyStop();
+  else if (cmd == "LED")   togglePin(PIN_LED,    ledState);
+  else if (cmd == "BZ")    togglePin(PIN_BUZZER, buzzerState);
+  else if (cmd == "Y")     togglePin(PIN_Y,      yState);
+  else if (cmd.startsWith("SPD:")) {
+    motorSpeed = map(cmd.substring(4).toInt(), 0, 100, 0, 255);
+  }
+}
+
+// Motor
+void motorForward()  { analogWrite(PIN_ENA, motorSpeed); digitalWrite(PIN_IN1, HIGH); digitalWrite(PIN_IN2, LOW);  }
+void motorBack()     { analogWrite(PIN_ENA, motorSpeed); digitalWrite(PIN_IN1, LOW);  digitalWrite(PIN_IN2, HIGH); }
+void motorLeft()     { analogWrite(PIN_ENA, motorSpeed / 2); digitalWrite(PIN_IN1, HIGH); digitalWrite(PIN_IN2, LOW); }
+void motorRight()    { analogWrite(PIN_ENA, motorSpeed / 2); digitalWrite(PIN_IN1, LOW);  digitalWrite(PIN_IN2, HIGH); }
+void motorStop()     { analogWrite(PIN_ENA, 0); digitalWrite(PIN_IN1, LOW); digitalWrite(PIN_IN2, LOW); }
+void emergencyStop() { motorStop(); digitalWrite(PIN_LED, LOW); digitalWrite(PIN_BUZZER, LOW); digitalWrite(PIN_Y, LOW); }
+
+// Toggle helper
+void togglePin(int pin, bool &state) {
+  state = !state;
+  digitalWrite(pin, state ? HIGH : LOW);
 }
 ```
 
-Connect HC-05 TX → Arduino RX (pin 0) and RX → TX (pin 1), or use `SoftwareSerial` for other pins.
+> The D-pad buttons send stop (`S`) automatically when you release them, so the motor stops as soon as you let go.

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -137,18 +138,18 @@ public class ControllerActivity extends BaseActivity
         findViewById(R.id.settingsBtn).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
 
-        // D-Pad — commands loaded from prefs (configurable in Settings)
-        findViewById(R.id.btnForward).setOnClickListener(v -> btService.send(prefs.getString("cmd_fwd",   "F")));
-        findViewById(R.id.btnBack).setOnClickListener(v    -> btService.send(prefs.getString("cmd_back",  "B")));
-        findViewById(R.id.btnLeft).setOnClickListener(v    -> btService.send(prefs.getString("cmd_left",  "L")));
-        findViewById(R.id.btnRight).setOnClickListener(v   -> btService.send(prefs.getString("cmd_right", "R")));
-        findViewById(R.id.btnStop).setOnClickListener(v    -> btService.send(prefs.getString("cmd_stop",  "S")));
+        // D-Pad — press sends direction, release sends stop automatically
+        findViewById(R.id.btnForward).setOnTouchListener(dpadTouch("cmd_fwd",  "F"));
+        findViewById(R.id.btnBack).setOnTouchListener(   dpadTouch("cmd_back", "B"));
+        findViewById(R.id.btnLeft).setOnTouchListener(   dpadTouch("cmd_left", "L"));
+        findViewById(R.id.btnRight).setOnTouchListener(  dpadTouch("cmd_right","R"));
+        findViewById(R.id.btnStop).setOnClickListener(v  -> btService.send(prefs.getString("cmd_stop", "S")));
 
-        // Action buttons — commands loaded from SharedPreferences
-        findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "A")));
+        // Action buttons — toggle commands for pins 4 (LED), 6 (Buzzer), 5 (Y)
+        findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "LED")));
         findViewById(R.id.btnB).setOnClickListener(v -> btService.send(prefs.getString("cmd_b", "BZ")));
-        findViewById(R.id.btnC).setOnClickListener(v -> btService.send(prefs.getString("cmd_c", "AUTO")));
-        findViewById(R.id.btnD).setOnClickListener(v -> btService.send(prefs.getString("cmd_d", "STOP")));
+        findViewById(R.id.btnC).setOnClickListener(v -> btService.send(prefs.getString("cmd_c", "Y")));
+        findViewById(R.id.btnD).setOnClickListener(v -> btService.send(prefs.getString("cmd_d", "ESTOP")));
 
         // Speed slider
         TextView speedValue = findViewById(R.id.speedValue);
@@ -323,6 +324,24 @@ public class ControllerActivity extends BaseActivity
             timerHandler.removeCallbacks(timerRunnable);
             if (connectionTimer != null) connectionTimer.setText("00:00");
         }
+    }
+
+    /** Returns a touch listener that sends the direction command on press and stop on release. */
+    private View.OnTouchListener dpadTouch(String prefKey, String defaultCmd) {
+        return (v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.setPressed(true);
+                    btService.send(prefs.getString(prefKey, defaultCmd));
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    v.setPressed(false);
+                    btService.send(prefs.getString("cmd_stop", "S"));
+                    break;
+            }
+            return true;
+        };
     }
 
     private void setupBottomNav() {
