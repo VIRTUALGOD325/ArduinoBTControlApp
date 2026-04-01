@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#201F1F"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:layout_marginBottom="8dp">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/stat_sys_data_bluetooth"
+        android:tint="#9ECAFF"
+        android:layout_gravity="center_vertical"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Device Name"
+            android:textColor="#E5E2E1"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/deviceAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AA:BB:CC:DD:EE:FF"
+            android:textColor="#89919D"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/deviceStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Paired"
+        android:textColor="#9ECAFF"
+        android:textSize="10sp"
+        android:layout_gravity="center_vertical"/>
+</LinearLayout>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ArduinoBTControl</string>
+    <!--
+        REPLACE the value below with your actual Web Client ID from Firebase Console:
+        Firebase Console → Project Settings → General → Your apps → Web client ID
+        This is auto-generated when you add google-services.json to app/
+    -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
+</resources>

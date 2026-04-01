@@ -1,0 +1,272 @@
+package com.eduprime.arduinobt.screens;
+
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.view.View;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.eduprime.arduinobt.R;
+import com.eduprime.arduinobt.bluetooth.BluetoothService;
+import com.eduprime.arduinobt.views.JoystickView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+public class ControllerActivity extends AppCompatActivity
+        implements BluetoothService.OnDataListener, SensorEventListener {
+
+    private static final int  MODE_DPAD = 0, MODE_JOYSTICK = 1, MODE_VOICE = 2, MODE_TILT = 3;
+    private static final long THROTTLE_MS = 100;
+
+    private BluetoothService btService;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private SharedPreferences prefs;
+
+    private int  currentMode  = MODE_DPAD;
+    private long lastSendTime = 0;
+
+    private View dpadContainer, joystickContainer, voiceContainer, tiltContainer;
+    private TextView[] modeTabs;
+    private TextView voiceStatus, tiltStatus;
+    private TextView btnALabel, btnBLabel, btnCLabel, btnDLabel;
+
+    private final ActivityResultLauncher<Intent> voiceLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getData() == null) return;
+                ArrayList<String> matches = result.getData()
+                        .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (matches != null && !matches.isEmpty()) processVoiceCommand(matches.get(0));
+            });
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_controller);
+
+        btService     = BluetoothService.getInstance();
+        prefs         = getSharedPreferences("settings", MODE_PRIVATE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        BluetoothDevice device = getIntent().getParcelableExtra("device");
+        if (device != null && !btService.isConnected()) connectToDevice(device);
+        btService.setListener(this);
+        if (device != null) ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
+
+        // Mode containers + tabs
+        dpadContainer     = findViewById(R.id.dpadContainer);
+        joystickContainer = findViewById(R.id.joystickContainer);
+        voiceContainer    = findViewById(R.id.voiceContainer);
+        tiltContainer     = findViewById(R.id.tiltContainer);
+        voiceStatus       = findViewById(R.id.voiceStatus);
+        tiltStatus        = findViewById(R.id.tiltStatus);
+
+        modeTabs = new TextView[]{
+            findViewById(R.id.modeDpad),
+            findViewById(R.id.modeJoystick),
+            findViewById(R.id.modeVoice),
+            findViewById(R.id.modeTilt)
+        };
+        for (int i = 0; i < modeTabs.length; i++) {
+            final int mode = i;
+            modeTabs[i].setOnClickListener(v -> setMode(mode));
+        }
+        setMode(MODE_DPAD);
+
+        // Action button labels (from settings)
+        btnALabel = findViewById(R.id.btnALabel);
+        btnBLabel = findViewById(R.id.btnBLabel);
+        btnCLabel = findViewById(R.id.btnCLabel);
+        btnDLabel = findViewById(R.id.btnDLabel);
+
+        // Top bar buttons
+        findViewById(R.id.disconnectBtn).setOnClickListener(v -> {
+            btService.disconnect();
+            startActivity(new Intent(this, DeviceActivityList.class));
+            finish();
+        });
+        findViewById(R.id.settingsBtn).setOnClickListener(v ->
+                startActivity(new Intent(this, SettingsActivity.class)));
+
+        // D-Pad
+        findViewById(R.id.btnForward).setOnClickListener(v -> btService.send("F"));
+        findViewById(R.id.btnBack).setOnClickListener(v    -> btService.send("B"));
+        findViewById(R.id.btnLeft).setOnClickListener(v    -> btService.send("L"));
+        findViewById(R.id.btnRight).setOnClickListener(v   -> btService.send("R"));
+        findViewById(R.id.btnStop).setOnClickListener(v    -> btService.send("S"));
+
+        // Action buttons — commands loaded from SharedPreferences
+        findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "A")));
+        findViewById(R.id.btnB).setOnClickListener(v -> btService.send(prefs.getString("cmd_b", "BZ")));
+        findViewById(R.id.btnC).setOnClickListener(v -> btService.send(prefs.getString("cmd_c", "AUTO")));
+        findViewById(R.id.btnD).setOnClickListener(v -> btService.send(prefs.getString("cmd_d", "STOP")));
+
+        // Speed slider
+        TextView speedValue = findViewById(R.id.speedValue);
+        ((SeekBar) findViewById(R.id.speedSlider)).setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar s, int p, boolean fromUser) {
+                speedValue.setText(p + "%");
+                if (fromUser) btService.send("SPD:" + p);
+            }
+            @Override public void onStartTrackingTouch(SeekBar s) {}
+            @Override public void onStopTrackingTouch(SeekBar s) {}
+        });
+
+        // Joystick — throttled
+        ((JoystickView) findViewById(R.id.joystick)).setOnMoveListener((x, y) -> {
+            if (!throttle()) return;
+            if      (Math.abs(x) < 20 && Math.abs(y) < 20) btService.send("S");
+            else if (Math.abs(y) >= Math.abs(x))            btService.send(y < 0 ? "F" : "B");
+            else                                             btService.send(x > 0 ? "R" : "L");
+        });
+
+        // Voice
+        findViewById(R.id.micBtn).setOnClickListener(v -> startVoice());
+
+        setupBottomNav();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadButtonLabels();
+        if (currentMode == MODE_TILT)
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    private void setMode(int mode) {
+        currentMode = mode;
+        dpadContainer.setVisibility(mode == MODE_DPAD      ? View.VISIBLE : View.GONE);
+        joystickContainer.setVisibility(mode == MODE_JOYSTICK ? View.VISIBLE : View.GONE);
+        voiceContainer.setVisibility(mode == MODE_VOICE    ? View.VISIBLE : View.GONE);
+        tiltContainer.setVisibility(mode == MODE_TILT      ? View.VISIBLE : View.GONE);
+
+        for (int i = 0; i < modeTabs.length; i++) {
+            modeTabs[i].setTextColor(i == mode ? 0xFF9ECAFF : 0xFF6B7280);
+            modeTabs[i].setBackgroundColor(i == mode ? 0xFF1E3A5F : 0xFF1A1A1A);
+        }
+
+        if (mode == MODE_TILT)
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        else
+            sensorManager.unregisterListener(this);
+    }
+
+    private void startVoice() {
+        try {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                    "Say: forward, back, left, right, or stop");
+            voiceLauncher.launch(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Voice not available on this device", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void processVoiceCommand(String speech) {
+        String s = speech.toLowerCase(Locale.getDefault());
+        String cmd;
+        if      (s.contains("forward") || s.contains("ahead"))    cmd = "F";
+        else if (s.contains("back")    || s.contains("reverse"))  cmd = "B";
+        else if (s.contains("left"))                               cmd = "L";
+        else if (s.contains("right"))                              cmd = "R";
+        else if (s.contains("stop")    || s.contains("halt"))      cmd = "S";
+        else if (s.contains("led")     || s.contains("light"))     cmd = prefs.getString("cmd_a", "A");
+        else if (s.contains("buzz"))                               cmd = prefs.getString("cmd_b", "BZ");
+        else if (s.contains("auto"))                               cmd = prefs.getString("cmd_c", "AUTO");
+        else                                                        cmd = speech;
+
+        voiceStatus.setText("\"" + speech + "\"  →  " + cmd);
+        btService.send(cmd);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
+        if (!throttle()) return;
+
+        float ax = event.values[0]; // tilt left(-) / right(+)
+        float ay = event.values[1]; // tilt forward(+) / back(-)
+        float dead = 2.5f;
+
+        String cmd;
+        if      (Math.abs(ax) < dead && Math.abs(ay) < dead) cmd = "S";
+        else if (Math.abs(ay) >= Math.abs(ax))                cmd = ay > 0 ? "F" : "B";
+        else                                                   cmd = ax < 0 ? "R" : "L";
+
+        tiltStatus.setText(String.format(Locale.getDefault(),
+                "x=%.1f  y=%.1f  →  %s", ax, ay, cmd));
+        btService.send(cmd);
+    }
+
+    @Override public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    private boolean throttle() {
+        long now = System.currentTimeMillis();
+        if (now - lastSendTime < THROTTLE_MS) return false;
+        lastSendTime = now;
+        return true;
+    }
+
+    private void loadButtonLabels() {
+        if (btnALabel != null) btnALabel.setText(prefs.getString("label_a", "TOGGLE LED"));
+        if (btnBLabel != null) btnBLabel.setText(prefs.getString("label_b", "BUZZER"));
+        if (btnCLabel != null) btnCLabel.setText(prefs.getString("label_c", "AUTO MODE"));
+        if (btnDLabel != null) btnDLabel.setText(prefs.getString("label_d", "EMERGENCY"));
+    }
+
+    private void connectToDevice(BluetoothDevice device) {
+        new Thread(() -> {
+            try {
+                btService.connect(device);
+                runOnUiThread(() -> Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show());
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    private void setupBottomNav() {
+        BottomNavigationView nav = findViewById(R.id.bottomNav);
+        nav.setSelectedItemId(R.id.nav_controller);
+        nav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if      (id == R.id.nav_devices)  startActivity(new Intent(this, DeviceActivityList.class));
+            else if (id == R.id.nav_terminal) startActivity(new Intent(this, TerminalActivity.class));
+            return true;
+        });
+    }
+
+    @Override public void onDataReceived(String data) {}
+
+    @Override
+    public void onConnectionLost() {
+        Toast.makeText(this, "Connection lost", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, DeviceActivityList.class));
+        finish();
+    }
+}

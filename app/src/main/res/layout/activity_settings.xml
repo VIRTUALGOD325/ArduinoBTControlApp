@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0D0D">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:background="#161616">
+
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:tint="#9ECAFF"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textColor="#E5E2E1"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Button Labels Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BUTTON LABELS &amp; COMMANDS"
+                android:textColor="#9ECAFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Row header -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="BTN" android:textColor="#6B7280" android:textSize="10sp"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="LABEL" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Button A -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="A" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/labelA" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+                <EditText android:id="@+id/cmdA" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Button B -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="B" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/labelB" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+                <EditText android:id="@+id/cmdB" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Button C -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="C" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/labelC" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+                <EditText android:id="@+id/cmdC" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Button D -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="D" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/labelD" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+                <EditText android:id="@+id/cmdD" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Connection Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CONNECTION"
+                android:textColor="#9ECAFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Baud Rate"
+                    android:textColor="#E5E2E1"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="16dp"/>
+
+                <Spinner
+                    android:id="@+id/baudSpinner"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/input_bg"
+                    android:paddingHorizontal="8dp"
+                    android:spinnerMode="dropdown"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/saveBtn"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Save Settings"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:backgroundTint="#2196F3"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
