@@ -9,6 +9,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.view.View;
 import android.widget.SeekBar;
@@ -34,6 +36,8 @@ public class ControllerActivity extends BaseActivity
 
     private static final int  MODE_DPAD = 0, MODE_JOYSTICK = 1, MODE_VOICE = 2, MODE_TILT = 3;
     private static final long THROTTLE_MS = 100;
+    private Long connectionStartTime;
+    private TextView connectionTimer;
 
     private BluetoothService btService;
     private SensorManager sensorManager;
@@ -47,6 +51,16 @@ public class ControllerActivity extends BaseActivity
     private View dpadContainer, joystickContainer, voiceContainer, tiltContainer;
     private View statusDot;
     private TextView connectionStatus;
+    private final Handler timerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long elapsed = (System.currentTimeMillis() - connectionStartTime) / 1000;
+            if (connectionTimer != null)
+                connectionTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", elapsed / 60, elapsed % 60));
+            timerHandler.postDelayed(this, 1000);
+        }
+    };
     private TextView[] modeTabs;
     private TextView voiceStatus, tiltStatus;
     private TextView btnALabel, btnBLabel, btnCLabel, btnDLabel;
@@ -71,9 +85,10 @@ public class ControllerActivity extends BaseActivity
 
         statusDot        = findViewById(R.id.statusDot);
         connectionStatus = findViewById(R.id.connectionStatus);
+        connectionTimer  = findViewById(R.id.connectionTimer);
 
         BluetoothDevice device = getIntent().getParcelableExtra("device");
-        btService.setListener(this);
+        btService.addListener(this);
 
         if (device != null) {
             ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
@@ -122,12 +137,12 @@ public class ControllerActivity extends BaseActivity
         findViewById(R.id.settingsBtn).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
 
-        // D-Pad
-        findViewById(R.id.btnForward).setOnClickListener(v -> btService.send("F"));
-        findViewById(R.id.btnBack).setOnClickListener(v    -> btService.send("B"));
-        findViewById(R.id.btnLeft).setOnClickListener(v    -> btService.send("L"));
-        findViewById(R.id.btnRight).setOnClickListener(v   -> btService.send("R"));
-        findViewById(R.id.btnStop).setOnClickListener(v    -> btService.send("S"));
+        // D-Pad — commands loaded from prefs (configurable in Settings)
+        findViewById(R.id.btnForward).setOnClickListener(v -> btService.send(prefs.getString("cmd_fwd",   "F")));
+        findViewById(R.id.btnBack).setOnClickListener(v    -> btService.send(prefs.getString("cmd_back",  "B")));
+        findViewById(R.id.btnLeft).setOnClickListener(v    -> btService.send(prefs.getString("cmd_left",  "L")));
+        findViewById(R.id.btnRight).setOnClickListener(v   -> btService.send(prefs.getString("cmd_right", "R")));
+        findViewById(R.id.btnStop).setOnClickListener(v    -> btService.send(prefs.getString("cmd_stop",  "S")));
 
         // Action buttons — commands loaded from SharedPreferences
         findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "A")));
@@ -147,12 +162,12 @@ public class ControllerActivity extends BaseActivity
             @Override public void onStopTrackingTouch(SeekBar s) {}
         });
 
-        // Joystick — throttled
+        // Joystick — throttled, uses same configurable commands as D-pad
         ((JoystickView) findViewById(R.id.joystick)).setOnMoveListener((x, y) -> {
             if (!throttle()) return;
-            if      (Math.abs(x) < 20 && Math.abs(y) < 20) btService.send("S");
-            else if (Math.abs(y) >= Math.abs(x))            btService.send(y < 0 ? "F" : "B");
-            else                                             btService.send(x > 0 ? "R" : "L");
+            if      (Math.abs(x) < 20 && Math.abs(y) < 20) btService.send(prefs.getString("cmd_stop",  "S"));
+            else if (Math.abs(y) >= Math.abs(x))            btService.send(y < 0 ? prefs.getString("cmd_fwd",  "F") : prefs.getString("cmd_back", "B"));
+            else                                             btService.send(x > 0 ? prefs.getString("cmd_right","R") : prefs.getString("cmd_left", "L"));
         });
 
         // Voice
@@ -209,11 +224,11 @@ public class ControllerActivity extends BaseActivity
     private void processVoiceCommand(String speech) {
         String s = speech.toLowerCase(Locale.getDefault());
         String cmd;
-        if      (s.contains("forward") || s.contains("ahead"))    cmd = "F";
-        else if (s.contains("back")    || s.contains("reverse"))  cmd = "B";
-        else if (s.contains("left"))                               cmd = "L";
-        else if (s.contains("right"))                              cmd = "R";
-        else if (s.contains("stop")    || s.contains("halt"))      cmd = "S";
+        if      (s.contains("forward") || s.contains("ahead"))    cmd = prefs.getString("cmd_fwd",   "F");
+        else if (s.contains("back")    || s.contains("reverse"))  cmd = prefs.getString("cmd_back",  "B");
+        else if (s.contains("left"))                               cmd = prefs.getString("cmd_left",  "L");
+        else if (s.contains("right"))                              cmd = prefs.getString("cmd_right", "R");
+        else if (s.contains("stop")    || s.contains("halt"))      cmd = prefs.getString("cmd_stop",  "S");
         else if (s.contains("led")     || s.contains("light"))     cmd = prefs.getString("cmd_a", "A");
         else if (s.contains("buzz"))                               cmd = prefs.getString("cmd_b", "BZ");
         else if (s.contains("auto"))                               cmd = prefs.getString("cmd_c", "AUTO");
@@ -233,9 +248,9 @@ public class ControllerActivity extends BaseActivity
         float dead = 2.5f;
 
         String cmd;
-        if      (Math.abs(ax) < dead && Math.abs(ay) < dead) cmd = "S";
-        else if (Math.abs(ay) >= Math.abs(ax))                cmd = ay > 0 ? "F" : "B";
-        else                                                   cmd = ax < 0 ? "R" : "L";
+        if      (Math.abs(ax) < dead && Math.abs(ay) < dead) cmd = prefs.getString("cmd_stop",  "S");
+        else if (Math.abs(ay) >= Math.abs(ax))                cmd = ay > 0 ? prefs.getString("cmd_fwd", "F") : prefs.getString("cmd_back", "B");
+        else                                                   cmd = ax < 0 ? prefs.getString("cmd_right","R") : prefs.getString("cmd_left","L");
 
         tiltStatus.setText(String.format(Locale.getDefault(),
                 "x=%.1f  y=%.1f  →  %s", ax, ay, cmd));
@@ -295,12 +310,18 @@ public class ControllerActivity extends BaseActivity
     }
 
     private void updateStatus(boolean connected) {
-        if (statusDot != null) {
+        if (statusDot != null)
             statusDot.setBackgroundResource(connected ? R.drawable.circle_green : R.drawable.circle_red);
-        }
         if (connectionStatus != null) {
             connectionStatus.setText(connected ? "Connected" : "Disconnected");
             connectionStatus.setTextColor(connected ? 0xFF4CAF50 : 0xFFF44336);
+        }
+        if (connected) {
+            connectionStartTime = System.currentTimeMillis();
+            timerHandler.post(timerRunnable);
+        } else {
+            timerHandler.removeCallbacks(timerRunnable);
+            if (connectionTimer != null) connectionTimer.setText("00:00");
         }
     }
 
@@ -311,11 +332,13 @@ public class ControllerActivity extends BaseActivity
             int id = item.getItemId();
             if      (id == R.id.nav_devices)  startActivity(new Intent(this, DeviceActivityList.class));
             else if (id == R.id.nav_terminal) startActivity(new Intent(this, TerminalActivity.class));
+            else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
             return true;
         });
     }
 
     @Override public void onDataReceived(String data) {}
+    @Override public void onDataSent(String cmd) {}
 
     @Override
     public void onConnectionLost() {
@@ -332,5 +355,12 @@ public class ControllerActivity extends BaseActivity
                     .setNegativeButton("Stay", null)
                     .show();
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timerHandler.removeCallbacks(timerRunnable);
+        btService.removeListener(this);
     }
 }

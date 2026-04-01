@@ -37,7 +37,7 @@ public class TerminalActivity extends BaseActivity implements BluetoothService.O
         setContentView(R.layout.activity_terminal);
 
         btService = BluetoothService.getInstance();
-        btService.setListener(this);
+        btService.addListener(this);
 
         terminalOutput = findViewById(R.id.terminalOutput);
         terminalScroll = findViewById(R.id.terminalScroll);
@@ -53,6 +53,13 @@ public class TerminalActivity extends BaseActivity implements BluetoothService.O
         findViewById(R.id.histUpBtn).setOnClickListener(v -> navigateHistory(1));
         findViewById(R.id.histDownBtn).setOnClickListener(v -> navigateHistory(-1));
 
+        // Clear Button
+        findViewById(R.id.clearBtn).setOnClickListener(v -> {
+            terminalOutput.setText("");
+            history.clear();
+            historyIndex = -1;
+            appendLog("Cleared Terminal Output.");
+        });
         setupBottomNav();
 
         appendLog(!btService.isConnected()
@@ -100,18 +107,30 @@ public class TerminalActivity extends BaseActivity implements BluetoothService.O
             int id = item.getItemId();
             if      (id == R.id.nav_devices)    startActivity(new Intent(this, DeviceActivityList.class));
             else if (id == R.id.nav_controller) startActivity(new Intent(this, ControllerActivity.class));
+            else if (id == R.id.nav_settings)   startActivity(new Intent(this, SettingsActivity.class));
             return true;
         });
     }
 
     @Override
     public void onDataReceived(String data) {
-        appendLog(data.trim());
+        appendLog("< " + data.trim());
+    }
+
+    @Override
+    public void onDataSent(String cmd) {
+        appendLog("> " + cmd);
     }
 
     @Override
     public void onConnectionLost() {
         appendLog("! Connection lost.");
         Toast.makeText(this, "Connection lost", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        btService.removeListener(this);
     }
 }

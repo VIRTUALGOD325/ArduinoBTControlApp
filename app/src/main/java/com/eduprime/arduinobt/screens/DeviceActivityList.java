@@ -114,11 +114,9 @@ public class DeviceActivityList extends BaseActivity {
         bottomNav.setSelectedItemId(R.id.nav_devices);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_controller) {
-                startActivity(new Intent(this, ControllerActivity.class));
-            } else if (id == R.id.nav_terminal) {
-                startActivity(new Intent(this, TerminalActivity.class));
-            }
+            if (id == R.id.nav_controller)  startActivity(new Intent(this, ControllerActivity.class));
+            else if (id == R.id.nav_terminal)   startActivity(new Intent(this, TerminalActivity.class));
+            else if (id == R.id.nav_settings)   startActivity(new Intent(this, SettingsActivity.class));
             return true;
         });
     }

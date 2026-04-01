@@ -8,6 +8,8 @@ import android.os.Looper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class BluetoothService {
@@ -19,7 +21,7 @@ public class BluetoothService {
     private OutputStream outputStream;
     private InputStream inputStream;
     private Thread readThread;
-    private OnDataListener listener;
+    private final List<OnDataListener> listeners = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private BluetoothService() {}
@@ -34,6 +36,7 @@ public class BluetoothService {
     public interface OnDataListener {
         void onDataReceived(String data);
         void onConnectionLost();
+        void onDataSent(String cmd);
     }
 
     public void connect(BluetoothDevice device) throws IOException {
@@ -51,6 +54,9 @@ public class BluetoothService {
         if (outputStream == null) return;
         try {
             outputStream.write((command + "\n").getBytes());
+            mainHandler.post(() -> {
+                for (OnDataListener l : new ArrayList<>(listeners)) l.onDataSent(command);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,8 +66,12 @@ public class BluetoothService {
         return socket != null && socket.isConnected();
     }
 
-    public void setListener(OnDataListener listener) {
-        this.listener = listener;
+    public void addListener(OnDataListener listener) {
+        if (!listeners.contains(listener)) listeners.add(listener);
+    }
+
+    public void removeListener(OnDataListener listener) {
+        listeners.remove(listener);
     }
 
     public void disconnect() {
@@ -87,11 +97,11 @@ public class BluetoothService {
                     bytes = inputStream.read(buffer);
                     final String data = new String(buffer, 0, bytes);
                     mainHandler.post(() -> {
-                        if (listener != null) listener.onDataReceived(data);
+                        for (OnDataListener l : new ArrayList<>(listeners)) l.onDataReceived(data);
                     });
                 } catch (IOException e) {
                     mainHandler.post(() -> {
-                        if (listener != null) listener.onConnectionLost();
+                        for (OnDataListener l : new ArrayList<>(listeners)) l.onConnectionLost();
                     });
                     break;
                 }

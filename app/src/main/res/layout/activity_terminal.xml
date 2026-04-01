@@ -88,12 +88,13 @@
                 android:id="@+id/baudRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● 9600 BAUD"
-                android:textColor="#9ECAFF"
-                android:textSize="12sp"
                 android:background="@drawable/baud_badge"
                 android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"/>
+                android:paddingVertical="6dp"
+                android:text="● 9600 BAUD"
+                android:textColor="#9ECAFF"
+                android:textSize="12sp" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -186,10 +187,20 @@
             android:id="@+id/sendBtn"
             android:layout_width="wrap_content"
             android:layout_height="52dp"
-            android:text="SEND ▶"
+            android:text="SEND"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:backgroundTint="#2196F3"
+            android:layout_marginStart="8dp"/>
+
+        <Button
+            android:id="@+id/clearBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:text="CLEAR"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:backgroundTint="#F44336"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 

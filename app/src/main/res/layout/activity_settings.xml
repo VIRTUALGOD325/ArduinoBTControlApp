@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0D0D0D">
+    android:background="#0D0D0D"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Toolbar -->
     <LinearLayout
@@ -88,6 +89,42 @@
                 <EditText android:id="@+id/cmdD" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
             </LinearLayout>
 
+            <!-- D-Pad Commands Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="D-PAD COMMANDS"
+                android:textColor="#9ECAFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="DIRECTION" android:textColor="#6B7280" android:textSize="10sp"/>
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND SENT" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Forward" android:textColor="#E5E2E1" android:textSize="13sp"/>
+                <EditText android:id="@+id/cmdForward" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Back" android:textColor="#E5E2E1" android:textSize="13sp"/>
+                <EditText android:id="@+id/cmdBack" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Left" android:textColor="#E5E2E1" android:textSize="13sp"/>
+                <EditText android:id="@+id/cmdLeft" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Right" android:textColor="#E5E2E1" android:textSize="13sp"/>
+                <EditText android:id="@+id/cmdRight" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Stop" android:textColor="#E5E2E1" android:textSize="13sp"/>
+                <EditText android:id="@+id/cmdStop" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
+            </LinearLayout>
+
             <!-- Connection Section -->
             <TextView
                 android:layout_width="wrap_content"
@@ -134,4 +171,14 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#161616"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="#9ECAFF"
+        app:itemTextColor="#9ECAFF"/>
+
 </LinearLayout>
