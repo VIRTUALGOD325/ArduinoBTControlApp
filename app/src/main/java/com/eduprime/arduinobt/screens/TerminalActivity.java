@@ -8,8 +8,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.R;
 import com.eduprime.arduinobt.bluetooth.BluetoothService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -20,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TerminalActivity extends AppCompatActivity implements BluetoothService.OnDataListener {
+public class TerminalActivity extends BaseActivity implements BluetoothService.OnDataListener {
 
     private BluetoothService btService;
     private TextView terminalOutput;

@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.eduprime.arduinobt.screens.DeviceActivityList;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -23,7 +22,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private FirebaseAuth auth;
     private GoogleSignInClient googleSignInClient;
@@ -132,7 +131,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToMain() {
-        startActivity(new Intent(this, DeviceActivityList.class));
+        boolean setupDone = getSharedPreferences("settings", MODE_PRIVATE)
+                .getBoolean("setup_done", false);
+        if (!setupDone) {
+            startActivity(new Intent(this, SetupActivity.class));
+        } else {
+            startActivity(new Intent(this, DeviceActivityList.class));
+        }
         finish();
     }
 

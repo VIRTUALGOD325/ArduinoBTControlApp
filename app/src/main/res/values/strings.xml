@@ -5,5 +5,5 @@
         Firebase Console → Project Settings → General → Your apps → Web client ID
         This is auto-generated when you add google-services.json to app/
     -->
-    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
+    <string name="default_web_client_id">207012119299-1srdj6q9ktqfklbgvqnvm31coho8g48r.apps.googleusercontent.com</string>
 </resources>

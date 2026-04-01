@@ -1,5 +1,6 @@
 package com.eduprime.arduinobt.screens;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,10 +15,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.R;
 import com.eduprime.arduinobt.bluetooth.BluetoothService;
 import com.eduprime.arduinobt.views.JoystickView;
@@ -26,7 +29,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class ControllerActivity extends AppCompatActivity
+public class ControllerActivity extends BaseActivity
         implements BluetoothService.OnDataListener, SensorEventListener {
 
     private static final int  MODE_DPAD = 0, MODE_JOYSTICK = 1, MODE_VOICE = 2, MODE_TILT = 3;
@@ -36,11 +39,14 @@ public class ControllerActivity extends AppCompatActivity
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private SharedPreferences prefs;
+    private Dialog connectingDialog;
 
     private int  currentMode  = MODE_DPAD;
     private long lastSendTime = 0;
 
     private View dpadContainer, joystickContainer, voiceContainer, tiltContainer;
+    private View statusDot;
+    private TextView connectionStatus;
     private TextView[] modeTabs;
     private TextView voiceStatus, tiltStatus;
     private TextView btnALabel, btnBLabel, btnCLabel, btnDLabel;
@@ -63,10 +69,23 @@ public class ControllerActivity extends AppCompatActivity
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        statusDot        = findViewById(R.id.statusDot);
+        connectionStatus = findViewById(R.id.connectionStatus);
+
         BluetoothDevice device = getIntent().getParcelableExtra("device");
-        if (device != null && !btService.isConnected()) connectToDevice(device);
         btService.setListener(this);
-        if (device != null) ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
+
+        if (device != null) {
+            ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
+            if (!btService.isConnected()) {
+                updateStatus(false);
+                connectToDevice(device);
+            } else {
+                updateStatus(true);
+            }
+        } else {
+            updateStatus(btService.isConnected());
+        }
 
         // Mode containers + tabs
         dpadContainer     = findViewById(R.id.dpadContainer);
@@ -240,14 +259,49 @@ public class ControllerActivity extends AppCompatActivity
     }
 
     private void connectToDevice(BluetoothDevice device) {
+        connectingDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Connecting...")
+                .setMessage("Connecting to " + device.getName() + "\nMake sure the device is on and paired.")
+                .setCancelable(false)
+                .create();
+        connectingDialog.show();
+
         new Thread(() -> {
             try {
                 btService.connect(device);
-                runOnUiThread(() -> Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    dismissDialog();
+                    updateStatus(true);
+                });
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    dismissDialog();
+                    updateStatus(false);
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle("Connection Failed")
+                            .setMessage("Could not connect to " + device.getName() + ". Make sure it's powered on and paired.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
             }
         }).start();
+    }
+
+    private void dismissDialog() {
+        if (connectingDialog != null && connectingDialog.isShowing()) {
+            connectingDialog.dismiss();
+            connectingDialog = null;
+        }
+    }
+
+    private void updateStatus(boolean connected) {
+        if (statusDot != null) {
+            statusDot.setBackgroundResource(connected ? R.drawable.circle_green : R.drawable.circle_red);
+        }
+        if (connectionStatus != null) {
+            connectionStatus.setText(connected ? "Connected" : "Disconnected");
+            connectionStatus.setTextColor(connected ? 0xFF4CAF50 : 0xFFF44336);
+        }
     }
 
     private void setupBottomNav() {
@@ -265,8 +319,18 @@ public class ControllerActivity extends AppCompatActivity
 
     @Override
     public void onConnectionLost() {
-        Toast.makeText(this, "Connection lost", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, DeviceActivityList.class));
-        finish();
+        runOnUiThread(() -> {
+            dismissDialog();
+            updateStatus(false);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Connection Lost")
+                    .setMessage("The Bluetooth connection was lost. Go back to devices?")
+                    .setPositiveButton("Go Back", (d, w) -> {
+                        startActivity(new Intent(this, DeviceActivityList.class));
+                        finish();
+                    })
+                    .setNegativeButton("Stay", null)
+                    .show();
+        });
     }
 }

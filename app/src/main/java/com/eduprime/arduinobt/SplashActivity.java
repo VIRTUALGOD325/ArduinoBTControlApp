@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.eduprime.arduinobt.screens.DeviceActivityList;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,13 +17,19 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
-            boolean guestMode    = prefs.getBoolean("guest", false);
-            boolean pinVerified  = prefs.getBoolean("pin_verified", false);
+            SharedPreferences authPrefs     = getSharedPreferences("auth", MODE_PRIVATE);
+            SharedPreferences settingsPrefs = getSharedPreferences("settings", MODE_PRIVATE);
+            boolean guestMode    = authPrefs.getBoolean("guest", false);
+            boolean pinVerified  = authPrefs.getBoolean("pin_verified", false);
             boolean firebaseAuth = FirebaseAuth.getInstance().getCurrentUser() != null;
+            boolean setupDone    = settingsPrefs.getBoolean("setup_done", false);
 
             if (firebaseAuth || guestMode || pinVerified) {
-                startActivity(new Intent(this, DeviceActivityList.class));
+                if (!setupDone) {
+                    startActivity(new Intent(this, SetupActivity.class));
+                } else {
+                    startActivity(new Intent(this, DeviceActivityList.class));
+                }
             } else {
                 startActivity(new Intent(this, LoginActivity.class));
             }

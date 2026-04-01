@@ -42,11 +42,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".SplashActivity" android:exported="false"/>
-        <activity android:name=".LoginActivity" android:exported="false"/>
+        <activity android:name=".LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".SetupActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".screens.DeviceActivityList" android:exported="false"/>
         <activity android:name=".screens.ControllerActivity" android:exported="false"/>
         <activity android:name=".screens.TerminalActivity" android:exported="false"/>
-        <activity android:name=".screens.SettingsActivity" android:exported="false"/>
+        <activity android:name=".screens.SettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 
 </manifest>

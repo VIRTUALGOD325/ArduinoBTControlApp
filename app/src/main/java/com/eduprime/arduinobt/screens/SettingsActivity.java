@@ -7,11 +7,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.R;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private static final String[] BAUDS = {"9600", "19200", "38400", "57600", "115200"};
     private SharedPreferences prefs;

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D0D"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name Your Buttons"
+            android:textColor="#E5E2E1"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose what each button will do on your Arduino"
+            android:textColor="#6B7280"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- Button A -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="A"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:backgroundTint="#2196F3"/>
+
+            <EditText
+                android:id="@+id/setupLabelA"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="e.g. Toggle LED"
+                android:textColorHint="#6B7280"
+                android:textColor="#E5E2E1"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textSize="15sp"
+                android:layout_marginStart="12dp"
+                android:inputType="text"/>
+        </LinearLayout>
+
+        <!-- Button B -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="B"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:backgroundTint="#4CAF50"/>
+
+            <EditText
+                android:id="@+id/setupLabelB"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="e.g. Buzzer"
+                android:textColorHint="#6B7280"
+                android:textColor="#E5E2E1"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textSize="15sp"
+                android:layout_marginStart="12dp"
+                android:inputType="text"/>
+        </LinearLayout>
+
+        <!-- Button C -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="C"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:backgroundTint="#FF9800"/>
+
+            <EditText
+                android:id="@+id/setupLabelC"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="e.g. Auto Mode"
+                android:textColorHint="#6B7280"
+                android:textColor="#E5E2E1"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textSize="15sp"
+                android:layout_marginStart="12dp"
+                android:inputType="text"/>
+        </LinearLayout>
+
+        <!-- Button D -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="40dp">
+
+            <Button
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="D"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:backgroundTint="#F44336"/>
+
+            <EditText
+                android:id="@+id/setupLabelD"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="e.g. Emergency Stop"
+                android:textColorHint="#6B7280"
+                android:textColor="#E5E2E1"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textSize="15sp"
+                android:layout_marginStart="12dp"
+                android:inputType="text"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/startBtn"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Let's Go! →"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:backgroundTint="#2196F3"/>
+
+        <TextView
+            android:id="@+id/skipSetup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Skip for now"
+            android:textColor="#6B7280"
+            android:textSize="13sp"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+</ScrollView>

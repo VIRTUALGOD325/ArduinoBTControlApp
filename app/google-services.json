@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "207012119299",
+    "project_id": "arduinobtapp",
+    "storage_bucket": "arduinobtapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207012119299:android:ec94c715f4244973cb5f36",
+        "android_client_info": {
+          "package_name": "com.eduprime.arduinobt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207012119299-oviu8ihhk1u0tj6gutafrbgmvh9379si.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eduprime.arduinobt",
+            "certificate_hash": "dc27e4ab4c8594cbbf5f514a7348d9de8102c346"
+          }
+        },
+        {
+          "client_id": "207012119299-1srdj6q9ktqfklbgvqnvm31coho8g48r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeFSKgTdYKl0MBZx4em7onm1MRopO6DEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207012119299-1srdj6q9ktqfklbgvqnvm31coho8g48r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

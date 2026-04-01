@@ -12,12 +12,16 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,11 +30,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class DeviceActivityList extends AppCompatActivity {
+public class DeviceActivityList extends BaseActivity {
 
     private static final int REQUEST_BT_PERMISSION = 1;
 
     private BluetoothAdapter bluetoothAdapter;
+
+    private final ActivityResultLauncher<Intent> enableBtLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (bluetoothAdapter.isEnabled()) {
+                    loadPairedDevices();
+                } else {
+                    Toast.makeText(this, "Bluetooth is required to use this app", Toast.LENGTH_LONG).show();
+                }
+            });
     private DeviceAdapter adapter;
     private final List<BluetoothDevice> deviceList = new ArrayList<>();
     private TextView nodeCount, emptyText;
@@ -59,6 +72,16 @@ public class DeviceActivityList extends AppCompatActivity {
     }
 
     private void loadPairedDevices() {
+        if (!bluetoothAdapter.isEnabled()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Bluetooth is off")
+                    .setMessage("Bluetooth must be on to find your Arduino. Turn it on now?")
+                    .setPositiveButton("Turn On", (d, w) ->
+                            enableBtLauncher.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                     != PackageManager.PERMISSION_GRANTED) {
