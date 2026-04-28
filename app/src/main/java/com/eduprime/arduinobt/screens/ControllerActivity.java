@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.eduprime.arduinobt.BaseActivity;
+import com.eduprime.arduinobt.notifications.NotificationHelper;
 import com.eduprime.arduinobt.R;
 import com.eduprime.arduinobt.bluetooth.BluetoothService;
 import com.eduprime.arduinobt.views.JoystickView;
@@ -50,6 +51,7 @@ public class ControllerActivity extends BaseActivity
     private long lastSendTime = 0;
 
     private View dpadContainer, joystickContainer, voiceContainer, tiltContainer;
+    private View speedContainer, actionButtonsContainer;
     private View statusDot;
     private TextView connectionStatus;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
@@ -108,6 +110,8 @@ public class ControllerActivity extends BaseActivity
         joystickContainer = findViewById(R.id.joystickContainer);
         voiceContainer    = findViewById(R.id.voiceContainer);
         tiltContainer     = findViewById(R.id.tiltContainer);
+        speedContainer    = findViewById(R.id.speedContainer);
+        actionButtonsContainer = findViewById(R.id.actionButtonsContainer);
         voiceStatus       = findViewById(R.id.voiceStatus);
         tiltStatus        = findViewById(R.id.tiltStatus);
 
@@ -145,7 +149,7 @@ public class ControllerActivity extends BaseActivity
         findViewById(R.id.btnRight).setOnTouchListener(  dpadTouch("cmd_right","R"));
         findViewById(R.id.btnStop).setOnClickListener(v  -> btService.send(prefs.getString("cmd_stop", "S")));
 
-        // Action buttons — toggle commands for pins 4 (LED), 6 (Buzzer), 5 (Y)
+        // Action buttons — toggle commxands for pins 4 (LED), 6 (Buzzer), 5 (Y)
         findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "LED")));
         findViewById(R.id.btnB).setOnClickListener(v -> btService.send(prefs.getString("cmd_b", "BZ")));
         findViewById(R.id.btnC).setOnClickListener(v -> btService.send(prefs.getString("cmd_c", "Y")));
@@ -170,6 +174,7 @@ public class ControllerActivity extends BaseActivity
             else if (Math.abs(y) >= Math.abs(x))            btService.send(y < 0 ? prefs.getString("cmd_fwd",  "F") : prefs.getString("cmd_back", "B"));
             else                                             btService.send(x > 0 ? prefs.getString("cmd_right","R") : prefs.getString("cmd_left", "L"));
         });
+        setupNumpad();
 
         // Voice
         findViewById(R.id.micBtn).setOnClickListener(v -> startVoice());
@@ -197,6 +202,8 @@ public class ControllerActivity extends BaseActivity
         joystickContainer.setVisibility(mode == MODE_JOYSTICK ? View.VISIBLE : View.GONE);
         voiceContainer.setVisibility(mode == MODE_VOICE    ? View.VISIBLE : View.GONE);
         tiltContainer.setVisibility(mode == MODE_TILT      ? View.VISIBLE : View.GONE);
+        speedContainer.setVisibility(mode == MODE_JOYSTICK ? View.GONE : View.VISIBLE);
+        actionButtonsContainer.setVisibility(mode == MODE_JOYSTICK ? View.GONE : View.VISIBLE);
 
         for (int i = 0; i < modeTabs.length; i++) {
             modeTabs[i].setTextColor(i == mode ? 0xFF9ECAFF : 0xFF6B7280);
@@ -277,30 +284,30 @@ public class ControllerActivity extends BaseActivity
     private void connectToDevice(BluetoothDevice device) {
         connectingDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Connecting...")
-                .setMessage("Connecting to " + device.getName() + "\nMake sure the device is on and paired.")
+                .setMessage("Connecting to " + device.getName() + "\nMake sure the device is on.")
                 .setCancelable(false)
                 .create();
         connectingDialog.show();
 
-        new Thread(() -> {
-            try {
-                btService.connect(device);
-                runOnUiThread(() -> {
-                    dismissDialog();
-                    updateStatus(true);
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    dismissDialog();
-                    updateStatus(false);
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle("Connection Failed")
-                            .setMessage("Could not connect to " + device.getName() + ". Make sure it's powered on and paired.")
-                            .setPositiveButton("OK", null)
-                            .show();
-                });
+        btService.connect(device, this, new BluetoothService.OnConnectCallback() {
+            @Override
+            public void onConnected() {
+                dismissDialog();
+                updateStatus(true);
+                NotificationHelper.notifyConnected(ControllerActivity.this, device.getName());
             }
-        }).start();
+
+            @Override
+            public void onConnectionFailed(String reason) {
+                dismissDialog();
+                updateStatus(false);
+                new MaterialAlertDialogBuilder(ControllerActivity.this)
+                        .setTitle("Connection Failed")
+                        .setMessage("Could not connect to " + device.getName() + ".\n" + reason)
+                        .setPositiveButton("OK", null)
+                        .show();
+            }
+        });
     }
 
     private void dismissDialog() {
@@ -344,6 +351,21 @@ public class ControllerActivity extends BaseActivity
         };
     }
 
+    private void setupNumpad() {
+        int[] keyIds = {
+                R.id.key0, R.id.key1, R.id.key2, R.id.key3, R.id.key4,
+                R.id.key5, R.id.key6, R.id.key7, R.id.key8, R.id.key9
+        };
+
+        for (int i = 0; i < keyIds.length; i++) {
+            final String command = String.valueOf(i);
+            findViewById(keyIds[i]).setOnClickListener(v -> btService.send(command));
+        }
+
+        findViewById(R.id.keyStar).setOnClickListener(v -> btService.send("*"));
+        findViewById(R.id.keyHash).setOnClickListener(v -> btService.send("#"));
+    }
+
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNav);
         nav.setSelectedItemId(R.id.nav_controller);
@@ -352,6 +374,7 @@ public class ControllerActivity extends BaseActivity
             if      (id == R.id.nav_devices)  startActivity(new Intent(this, DeviceActivityList.class));
             else if (id == R.id.nav_terminal) startActivity(new Intent(this, TerminalActivity.class));
             else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
+            else if (id == R.id.nav_ai)     startActivity(new Intent(this, AIControlActivity.class));
             return true;
         });
     }
@@ -364,6 +387,7 @@ public class ControllerActivity extends BaseActivity
         runOnUiThread(() -> {
             dismissDialog();
             updateStatus(false);
+            NotificationHelper.notifyDisconnected(this);
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Connection Lost")
                     .setMessage("The Bluetooth connection was lost. Go back to devices?")

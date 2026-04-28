@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0D0D0D"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#0D0D0D">
 
     <!-- Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="60dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settings"
+            android:text="⚙️  Settings"
             android:textColor="#E5E2E1"
             android:textSize="18sp"
             android:textStyle="bold"/>
@@ -44,103 +44,127 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Button Labels Section -->
+            <!-- ─── Button Labels Section ─── -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BUTTON LABELS &amp; COMMANDS"
                 android:textColor="#9ECAFF"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="10dp"/>
 
-            <!-- Row header -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
-                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="BTN" android:textColor="#6B7280" android:textSize="10sp"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="LABEL" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_dark"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <!-- Row header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="36dp" android:layout_height="wrap_content" android:text="BTN" android:textColor="#6B7280" android:textSize="10sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="LABEL" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <!-- Button A -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="36dp" android:layout_height="wrap_content" android:text="A" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/labelA" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="14sp" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                    <EditText android:id="@+id/cmdA" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <!-- Button B -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="36dp" android:layout_height="wrap_content" android:text="B" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/labelB" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="14sp" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                    <EditText android:id="@+id/cmdB" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <!-- Button C -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="36dp" android:layout_height="wrap_content" android:text="C" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/labelC" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="14sp" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                    <EditText android:id="@+id/cmdC" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <!-- Button D -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="36dp" android:layout_height="wrap_content" android:text="D" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
+                    <EditText android:id="@+id/labelD" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="14sp" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                    <EditText android:id="@+id/cmdD" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Button A -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="A" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
-                <EditText android:id="@+id/labelA" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-                <EditText android:id="@+id/cmdA" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Button B -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="B" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
-                <EditText android:id="@+id/labelB" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-                <EditText android:id="@+id/cmdB" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Button C -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="C" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
-                <EditText android:id="@+id/labelC" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-                <EditText android:id="@+id/cmdC" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Button D -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
-                <TextView android:layout_width="30dp" android:layout_height="wrap_content" android:text="D" android:textColor="#9ECAFF" android:textSize="16sp" android:textStyle="bold"/>
-                <EditText android:id="@+id/labelD" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#E5E2E1" android:textSize="13sp" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-                <EditText android:id="@+id/cmdD" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- D-Pad Commands Section -->
+            <!-- ─── D-Pad Commands Section ─── -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="D-PAD COMMANDS"
                 android:textColor="#9ECAFF"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="10dp"/>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="4dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="DIRECTION" android:textColor="#6B7280" android:textSize="10sp"/>
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND SENT" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_dark"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="DIRECTION" android:textColor="#6B7280" android:textSize="10sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="COMMAND" android:textColor="#6B7280" android:textSize="10sp" android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="▲  Forward" android:textColor="#E5E2E1" android:textSize="14sp"/>
+                    <EditText android:id="@+id/cmdForward" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp" android:inputType="text"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="▼  Back" android:textColor="#E5E2E1" android:textSize="14sp"/>
+                    <EditText android:id="@+id/cmdBack" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp" android:inputType="text"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="◀  Left" android:textColor="#E5E2E1" android:textSize="14sp"/>
+                    <EditText android:id="@+id/cmdLeft" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp" android:inputType="text"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="▶  Right" android:textColor="#E5E2E1" android:textSize="14sp"/>
+                    <EditText android:id="@+id/cmdRight" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp" android:inputType="text"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="90dp" android:layout_height="wrap_content" android:text="⏹  Stop" android:textColor="#E5E2E1" android:textSize="14sp"/>
+                    <EditText android:id="@+id/cmdStop" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="14sp" android:fontFamily="monospace" android:paddingHorizontal="12dp" android:layout_marginStart="8dp" android:inputType="text"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Forward" android:textColor="#E5E2E1" android:textSize="13sp"/>
-                <EditText android:id="@+id/cmdForward" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Back" android:textColor="#E5E2E1" android:textSize="13sp"/>
-                <EditText android:id="@+id/cmdBack" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Left" android:textColor="#E5E2E1" android:textSize="13sp"/>
-                <EditText android:id="@+id/cmdLeft" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Right" android:textColor="#E5E2E1" android:textSize="13sp"/>
-                <EditText android:id="@+id/cmdRight" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Stop" android:textColor="#E5E2E1" android:textSize="13sp"/>
-                <EditText android:id="@+id/cmdStop" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/input_bg" android:textColor="#9ECAFF" android:textSize="13sp" android:fontFamily="monospace" android:paddingHorizontal="8dp" android:layout_marginStart="8dp" android:inputType="text"/>
-            </LinearLayout>
-
-            <!-- Connection Section -->
+            <!-- ─── Connection Section ─── -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="CONNECTION"
                 android:textColor="#9ECAFF"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="10dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
+                android:background="@drawable/bg_card_dark"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -153,21 +177,23 @@
                 <Spinner
                     android:id="@+id/baudSpinner"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="52dp"
                     android:layout_weight="1"
                     android:background="@drawable/input_bg"
-                    android:paddingHorizontal="8dp"
+                    android:paddingHorizontal="12dp"
                     android:spinnerMode="dropdown"/>
             </LinearLayout>
 
             <Button
                 android:id="@+id/saveBtn"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="Save Settings"
+                android:layout_height="56dp"
+                android:text="💾  Save Settings"
                 android:textColor="#FFFFFF"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:backgroundTint="#2196F3"/>
+                android:backgroundTint="#2196F3"
+                android:layout_marginBottom="8dp"/>
 
         </LinearLayout>
     </ScrollView>
@@ -178,7 +204,7 @@
         android:layout_height="wrap_content"
         android:background="#161616"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="#9ECAFF"
-        app:itemTextColor="#9ECAFF"/>
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"/>
 
 </LinearLayout>

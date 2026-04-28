@@ -69,10 +69,14 @@ public class JoystickView extends View {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
+                // Prevent the parent NestedScrollView from stealing touch events
+                // while the joystick thumb is being dragged.
+                getParent().requestDisallowInterceptTouchEvent(true);
                 moveThumb(event.getX(), event.getY());
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                getParent().requestDisallowInterceptTouchEvent(false);
                 resetThumb();
                 return true;
         }

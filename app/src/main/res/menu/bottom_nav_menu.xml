@@ -7,7 +7,11 @@
     <item
         android:id="@+id/nav_controller"
         android:icon="@android:drawable/ic_menu_compass"
-        android:title="CONTROLLER"/>
+        android:title="CONTROL"/>
+    <item
+        android:id="@+id/nav_ai"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="AI LAB"/>
     <item
         android:id="@+id/nav_terminal"
         android:icon="@android:drawable/ic_menu_manage"

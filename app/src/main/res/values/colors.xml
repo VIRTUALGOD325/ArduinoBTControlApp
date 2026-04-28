@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- App theme colors -->
+    <color name="bg_dark">#0D0D0D</color>
+    <color name="bg_card">#1A1A2E</color>
+    <color name="accent_blue">#9ECAFF</color>
+    <color name="accent_green">#A8FF78</color>
+    <color name="accent_yellow">#FFD700</color>
+    <color name="accent_pink">#FF9EC4</color>
+    <color name="accent_orange">#FF9800</color>
+    <color name="text_primary">#E5E2E1</color>
+    <color name="text_secondary">#89919D</color>
+    <color name="status_connected">#4CAF50</color>
+    <color name="status_disconnected">#F44336</color>
 </resources>

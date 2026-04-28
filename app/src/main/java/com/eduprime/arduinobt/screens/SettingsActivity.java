@@ -100,6 +100,7 @@ public class SettingsActivity extends BaseActivity {
             if      (id == R.id.nav_devices)    startActivity(new Intent(this, DeviceActivityList.class));
             else if (id == R.id.nav_controller) startActivity(new Intent(this, ControllerActivity.class));
             else if (id == R.id.nav_terminal)   startActivity(new Intent(this, TerminalActivity.class));
+            else if (id == R.id.nav_ai)     startActivity(new Intent(this, AIControlActivity.class));
             return true;
         });
     }
