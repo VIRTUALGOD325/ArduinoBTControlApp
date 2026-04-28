@@ -1,0 +1,3 @@
+App isnt 16Kb compatible, ELF alignment check failed.
+LIB FAILING:
+arm64-v8a/libimage_processing_util_jni.so: LOAD Segment not aligned

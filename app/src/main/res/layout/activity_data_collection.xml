@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D0D">
+
+    <!-- Camera preview top half -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/capturePanel"
+        app:layout_constraintVertical_weight="1"/>
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#CC0D0D0D"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:gravity="center"
+            android:text="←"
+            android:textColor="#9ECAFF"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🎓 Teach the Robot"
+            android:textColor="#E5E2E1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/btnDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DONE ✓"
+            android:textColor="#A8FF78"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Capture panel -->
+    <LinearLayout
+        android:id="@+id/capturePanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#0D0D0D"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Class selection row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Teaching:"
+                android:textColor="#89919D"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:id="@+id/currentClassName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No class selected"
+                android:textColor="#FFD700"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/btnChangeClass"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:text="CHANGE"
+                android:textColor="#9ECAFF"
+                android:textSize="11sp"
+                android:background="@drawable/bg_card_dark"/>
+    </LinearLayout>
+
+        <!-- Capture count + button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/sampleCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0 photos taken"
+                android:textColor="#89919D"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:id="@+id/captureBtn"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:gravity="center"
+                android:text="📷"
+                android:textSize="32sp"
+                android:background="@drawable/bg_capture_btn"/>
+        </LinearLayout>
+
+        <!-- Command mapping -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card_dark"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🤖 Robot command:"
+                android:textColor="#E5E2E1"
+                android:textSize="13sp"/>
+
+            <EditText
+                android:id="@+id/commandInput"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:background="@drawable/input_bg"
+                android:textColor="#9ECAFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:hint="F"
+                android:textColorHint="#555"
+                android:inputType="text"
+                android:maxLength="8"/>
+        </LinearLayout>
+
+        <!-- Class list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/classList"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"/>
+
+        <!-- Add new class -->
+        <TextView
+            android:id="@+id/btnAddClass"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="＋ Add New Thing to Learn"
+            android:textColor="#FF9EC4"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_button_pink"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Export / Import row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/btnExport"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:gravity="center"
+                android:text="📥 Export Model"
+                android:textColor="#A8FF78"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_card_dark"/>
+
+            <TextView
+                android:id="@+id/btnImport"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:gravity="center"
+                android:text="📂 Load Model"
+                android:textColor="#9ECAFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_card_dark"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card_dark"
+    android:padding="10dp"
+    android:layout_marginEnd="8dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/classEmoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎯"
+        android:textSize="28sp"/>
+
+    <TextView
+        android:id="@+id/className"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ball"
+        android:textColor="#E5E2E1"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/sampleCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 photos"
+        android:textColor="#89919D"
+        android:textSize="11sp"/>
+
+    <TextView
+        android:id="@+id/classCommand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CMD: F"
+        android:textColor="#9ECAFF"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/btnSelect"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:gravity="center"
+        android:text="SELECT"
+        android:textColor="#A8FF78"
+        android:textSize="10sp"
+        android:background="@drawable/bg_button_green"
+        android:layout_marginTop="6dp"/>
+
+</LinearLayout>

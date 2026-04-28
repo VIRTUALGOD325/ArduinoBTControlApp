@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What should the robot learn?"
+        android:textColor="#89919D"
+        android:textSize="13sp"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/classNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/input_bg"
+        android:textColor="#E5E2E1"
+        android:textSize="15sp"
+        android:padding="12dp"
+        android:hint="Name (e.g. Red Ball)"
+        android:textColorHint="#555"
+        android:inputType="textCapSentences"
+        android:layout_marginBottom="10dp"/>
+
+    <EditText
+        android:id="@+id/classEmojiInput"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/input_bg"
+        android:textColor="#E5E2E1"
+        android:textSize="15sp"
+        android:padding="12dp"
+        android:hint="Emoji (e.g. 🏀)"
+        android:textColorHint="#555"
+        android:inputType="text"
+        android:layout_marginBottom="10dp"/>
+
+    <EditText
+        android:id="@+id/classCommandInput"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/input_bg"
+        android:textColor="#9ECAFF"
+        android:textSize="15sp"
+        android:padding="12dp"
+        android:hint="Robot command (e.g. F, L, R, B)"
+        android:textColorHint="#555"
+        android:inputType="text"/>
+
+</LinearLayout>
