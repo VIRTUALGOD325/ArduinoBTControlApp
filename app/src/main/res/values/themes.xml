@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.ArduinoBTControl" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Active indicator pill behind selected nav item -->
+        <item name="colorSecondaryContainer">#2C2C3A</item>
+        <!-- Icon/label color inside the active indicator -->
+        <item name="colorOnSecondaryContainer">#9ECAFF</item>
     </style>
 
     <style name="Theme.ArduinoBTControl" parent="Base.Theme.ArduinoBTControl" />

@@ -1,9 +1,11 @@
 package com.eduprime.arduinobt.screens;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,6 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.ActivityCompat;
 
 import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.notifications.NotificationHelper;
@@ -38,6 +41,7 @@ public class ControllerActivity extends BaseActivity
 
     private static final int  MODE_DPAD = 0, MODE_JOYSTICK = 1, MODE_VOICE = 2, MODE_TILT = 3;
     private static final long THROTTLE_MS = 100;
+    private static final int SEND_PRESS = 0, SEND_RELEASE = 1, SEND_BOTH = 2;
     private Long connectionStartTime;
     private TextView connectionTimer;
 
@@ -49,6 +53,14 @@ public class ControllerActivity extends BaseActivity
 
     private int  currentMode  = MODE_DPAD;
     private long lastSendTime = 0;
+
+    // D-Pad latch / momentary
+    private boolean dpadLatch = false;
+    private int sendOn = SEND_PRESS;
+    private final boolean[] latchActive = {false, false, false, false};
+    private View dpadFwd, dpadBack, dpadLeft, dpadRight;
+    private TextView btnMomentary, btnLatchMode, sendOnPress, sendOnRelease, sendOnBoth;
+    private View sendOnControls;
 
     private View dpadContainer, joystickContainer, voiceContainer, tiltContainer;
     private View speedContainer, actionButtonsContainer;
@@ -94,6 +106,16 @@ public class ControllerActivity extends BaseActivity
         btService.addListener(this);
 
         if (device != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
             if (!btService.isConnected()) {
                 updateStatus(false);
@@ -142,18 +164,33 @@ public class ControllerActivity extends BaseActivity
         findViewById(R.id.settingsBtn).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
 
-        // D-Pad — press sends direction, release sends stop automatically
-        findViewById(R.id.btnForward).setOnTouchListener(dpadTouch("cmd_fwd",  "F"));
-        findViewById(R.id.btnBack).setOnTouchListener(   dpadTouch("cmd_back", "B"));
-        findViewById(R.id.btnLeft).setOnTouchListener(   dpadTouch("cmd_left", "L"));
-        findViewById(R.id.btnRight).setOnTouchListener(  dpadTouch("cmd_right","R"));
-        findViewById(R.id.btnStop).setOnClickListener(v  -> btService.send(prefs.getString("cmd_stop", "S")));
+        // Landscape controller mode
+        findViewById(R.id.landscapeBtn).setOnClickListener(v -> {
+            Intent i = new Intent(this, LandscapeControllerActivity.class);
+            if (device != null) i.putExtra("device_name", device.getName());
+            startActivity(i);
+        });
 
-        // Action buttons — toggle commxands for pins 4 (LED), 6 (Buzzer), 5 (Y)
-        findViewById(R.id.btnA).setOnClickListener(v -> btService.send(prefs.getString("cmd_a", "LED")));
-        findViewById(R.id.btnB).setOnClickListener(v -> btService.send(prefs.getString("cmd_b", "BZ")));
-        findViewById(R.id.btnC).setOnClickListener(v -> btService.send(prefs.getString("cmd_c", "Y")));
-        findViewById(R.id.btnD).setOnClickListener(v -> btService.send(prefs.getString("cmd_d", "ESTOP")));
+        // D-Pad
+        dpadFwd   = findViewById(R.id.btnForward);
+        dpadBack  = findViewById(R.id.btnBack);
+        dpadLeft  = findViewById(R.id.btnLeft);
+        dpadRight = findViewById(R.id.btnRight);
+        dpadFwd.setOnTouchListener(dpadTouch(0, "cmd_fwd",   "F", "nostop_fwd"));
+        dpadBack.setOnTouchListener(dpadTouch(1, "cmd_back",  "B", "nostop_back"));
+        dpadLeft.setOnTouchListener(dpadTouch(2, "cmd_left",  "L", "nostop_left"));
+        dpadRight.setOnTouchListener(dpadTouch(3, "cmd_right", "R", "nostop_right"));
+        findViewById(R.id.btnStop).setOnClickListener(v -> {
+            java.util.Arrays.fill(latchActive, false);
+            updateLatchVisuals();
+            btService.send(prefs.getString("cmd_stop", "S"));
+        });
+
+        // Action buttons
+        findViewById(R.id.btnA).setOnTouchListener(actionTouch("cmd_a", "LED"));
+        findViewById(R.id.btnB).setOnTouchListener(actionTouch("cmd_b", "BZ"));
+        findViewById(R.id.btnC).setOnTouchListener(actionTouch("cmd_c", "Y"));
+        findViewById(R.id.btnD).setOnTouchListener(actionTouch("cmd_d", "ESTOP"));
 
         // Speed slider
         TextView speedValue = findViewById(R.id.speedValue);
@@ -167,19 +204,55 @@ public class ControllerActivity extends BaseActivity
             @Override public void onStopTrackingTouch(SeekBar s) {}
         });
 
-        // Joystick — throttled, uses same configurable commands as D-pad
+        // Joystick — throttled, 8-quadrant, uses dedicated joy_* prefs
         ((JoystickView) findViewById(R.id.joystick)).setOnMoveListener((x, y) -> {
             if (!throttle()) return;
-            if      (Math.abs(x) < 20 && Math.abs(y) < 20) btService.send(prefs.getString("cmd_stop",  "S"));
-            else if (Math.abs(y) >= Math.abs(x))            btService.send(y < 0 ? prefs.getString("cmd_fwd",  "F") : prefs.getString("cmd_back", "B"));
-            else                                             btService.send(x > 0 ? prefs.getString("cmd_right","R") : prefs.getString("cmd_left", "L"));
+            String cmd;
+            if (Math.abs(x) < 20 && Math.abs(y) < 20) {
+                cmd = prefs.getString("joy_stop", "S");
+            } else {
+                float ax = Math.abs(x), ay = Math.abs(y);
+                if      (ay > ax * 2 && y < 0) cmd = prefs.getString("joy_up",    "F");
+                else if (ay > ax * 2)           cmd = prefs.getString("joy_down",  "B");
+                else if (ax > ay * 2 && x > 0) cmd = prefs.getString("joy_right", "R");
+                else if (ax > ay * 2)           cmd = prefs.getString("joy_left",  "L");
+                else if (y < 0 && x > 0)        cmd = prefs.getString("joy_ur",    "FR");
+                else if (y < 0)                 cmd = prefs.getString("joy_ul",    "FL");
+                else if (x > 0)                 cmd = prefs.getString("joy_dr",    "BR");
+                else                            cmd = prefs.getString("joy_dl",    "BL");
+            }
+            btService.send(cmd);
         });
         setupNumpad();
+        setupDpadModeControls();
 
         // Voice
         findViewById(R.id.micBtn).setOnClickListener(v -> startVoice());
 
         setupBottomNav();
+        setupOnBackPressed();
+    }
+
+    private void setupOnBackPressed() {
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (btService != null && btService.isConnected()) {
+                    new MaterialAlertDialogBuilder(ControllerActivity.this)
+                            .setTitle("Disconnect")
+                            .setMessage("Disconnect from the device and go back?")
+                            .setPositiveButton("Disconnect", (dialog, which) -> {
+                                btService.send(prefs.getString("cmd_stop", "S"));
+                                btService.disconnect();
+                                finish();
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -188,6 +261,8 @@ public class ControllerActivity extends BaseActivity
         loadButtonLabels();
         if (currentMode == MODE_TILT)
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        BottomNavigationView nav = findViewById(R.id.bottomNav);
+        if (nav != null) nav.setSelectedItemId(R.id.nav_controller);
     }
 
     @Override
@@ -333,22 +408,129 @@ public class ControllerActivity extends BaseActivity
         }
     }
 
-    /** Returns a touch listener that sends the direction command on press and stop on release. */
-    private View.OnTouchListener dpadTouch(String prefKey, String defaultCmd) {
+    private View.OnTouchListener dpadTouch(int btnIndex, String prefKey, String defaultCmd, String noStopKey) {
         return (v, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    v.setPressed(true);
-                    btService.send(prefs.getString(prefKey, defaultCmd));
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    v.setPressed(false);
-                    btService.send(prefs.getString("cmd_stop", "S"));
-                    break;
+            int action = event.getActionMasked();
+            String cmd     = prefs.getString(prefKey, defaultCmd);
+            String stopCmd = prefs.getString("cmd_stop", "S");
+            // "No Stop" buttons drive toggle-style outputs (e.g. an LED) instead of motion:
+            // they never emit the Stop command, so the output holds its state.
+            boolean noStop = prefs.getBoolean(noStopKey, false);
+
+            if (dpadLatch) {
+                if (action == MotionEvent.ACTION_DOWN) {
+                    if (!latchActive[btnIndex]) {
+                        java.util.Arrays.fill(latchActive, false);
+                        latchActive[btnIndex] = true;
+                        btService.send(cmd);
+                    } else {
+                        latchActive[btnIndex] = false;
+                        // Toggle output: re-send the same command to flip it back off.
+                        btService.send(noStop ? cmd : stopCmd);
+                    }
+                    updateLatchVisuals();
+                }
+                // Ignore UP/CANCEL in latch mode — visual stays until next tap
+            } else {
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        v.setPressed(true);
+                        if (sendOn == SEND_PRESS || sendOn == SEND_BOTH)
+                            btService.send(cmd);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        v.setPressed(false);
+                        if (sendOn == SEND_RELEASE || sendOn == SEND_BOTH)
+                            btService.send(cmd);
+                        else if (!noStop)
+                            btService.send(stopCmd);
+                        break;
+                }
             }
             return true;
         };
+    }
+
+    private View.OnTouchListener actionTouch(String prefKey, String defaultCmd) {
+        return (v, event) -> {
+            int action = event.getActionMasked();
+            String cmd = prefs.getString(prefKey, defaultCmd);
+            if (action == MotionEvent.ACTION_DOWN) {
+                v.setPressed(true);
+                if (sendOn == SEND_PRESS || sendOn == SEND_BOTH) btService.send(cmd);
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                v.setPressed(false);
+                if (sendOn == SEND_RELEASE || sendOn == SEND_BOTH) btService.send(cmd);
+            }
+            return true;
+        };
+    }
+
+    private void setupDpadModeControls() {
+        btnMomentary   = findViewById(R.id.btnMomentary);
+        btnLatchMode   = findViewById(R.id.btnLatchMode);
+        sendOnControls = findViewById(R.id.sendOnControls);
+        sendOnPress    = findViewById(R.id.sendOnPress);
+        sendOnRelease  = findViewById(R.id.sendOnRelease);
+        sendOnBoth     = findViewById(R.id.sendOnBoth);
+
+        dpadLatch = prefs.getBoolean("dpad_latch", false);
+        sendOn    = prefs.getInt("dpad_send_on", SEND_PRESS);
+        updateModeControls();
+
+        btnMomentary.setOnClickListener(v -> {
+            dpadLatch = false;
+            clearLatch();
+            prefs.edit().putBoolean("dpad_latch", false).apply();
+            updateModeControls();
+        });
+        btnLatchMode.setOnClickListener(v -> {
+            dpadLatch = true;
+            clearLatch();
+            prefs.edit().putBoolean("dpad_latch", true).apply();
+            updateModeControls();
+        });
+        sendOnPress.setOnClickListener(v   -> setSendOn(SEND_PRESS));
+        sendOnRelease.setOnClickListener(v -> setSendOn(SEND_RELEASE));
+        sendOnBoth.setOnClickListener(v    -> setSendOn(SEND_BOTH));
+    }
+
+    private void setSendOn(int mode) {
+        sendOn = mode;
+        prefs.edit().putInt("dpad_send_on", mode).apply();
+        updateModeControls();
+    }
+
+    private void updateModeControls() {
+        int activeColor   = 0xFF1E3A5F, inactiveColor = 0xFF1A1A1A;
+        int activeTxt     = 0xFFE5E2E1, inactiveTxt   = 0xFF6B7280;
+
+        btnMomentary.setBackgroundColor(!dpadLatch ? activeColor : inactiveColor);
+        btnMomentary.setTextColor(!dpadLatch ? activeTxt : inactiveTxt);
+        btnLatchMode.setBackgroundColor(dpadLatch ? activeColor : inactiveColor);
+        btnLatchMode.setTextColor(dpadLatch ? activeTxt : inactiveTxt);
+
+        sendOnControls.setVisibility(dpadLatch ? View.GONE : View.VISIBLE);
+
+        sendOnPress.setBackgroundColor(sendOn == SEND_PRESS   ? activeColor : inactiveColor);
+        sendOnPress.setTextColor(sendOn == SEND_PRESS   ? activeTxt : inactiveTxt);
+        sendOnRelease.setBackgroundColor(sendOn == SEND_RELEASE ? activeColor : inactiveColor);
+        sendOnRelease.setTextColor(sendOn == SEND_RELEASE ? activeTxt : inactiveTxt);
+        sendOnBoth.setBackgroundColor(sendOn == SEND_BOTH    ? activeColor : inactiveColor);
+        sendOnBoth.setTextColor(sendOn == SEND_BOTH    ? activeTxt : inactiveTxt);
+    }
+
+    private void updateLatchVisuals() {
+        View[] btns = {dpadFwd, dpadBack, dpadLeft, dpadRight};
+        for (int i = 0; i < btns.length; i++) {
+            if (btns[i] != null) btns[i].setPressed(latchActive[i]);
+        }
+    }
+
+    private void clearLatch() {
+        java.util.Arrays.fill(latchActive, false);
+        updateLatchVisuals();
     }
 
     private void setupNumpad() {
@@ -356,25 +538,30 @@ public class ControllerActivity extends BaseActivity
                 R.id.key0, R.id.key1, R.id.key2, R.id.key3, R.id.key4,
                 R.id.key5, R.id.key6, R.id.key7, R.id.key8, R.id.key9
         };
+        String[] prefKeys = {"numpad_0","numpad_1","numpad_2","numpad_3","numpad_4",
+                             "numpad_5","numpad_6","numpad_7","numpad_8","numpad_9"};
+        String[] defaults = {"0","1","2","3","4","5","6","7","8","9"};
 
         for (int i = 0; i < keyIds.length; i++) {
-            final String command = String.valueOf(i);
-            findViewById(keyIds[i]).setOnClickListener(v -> btService.send(command));
+            final String pref = prefKeys[i], def = defaults[i];
+            findViewById(keyIds[i]).setOnClickListener(v ->
+                    btService.send(prefs.getString(pref, def)));
         }
-
-        findViewById(R.id.keyStar).setOnClickListener(v -> btService.send("*"));
-        findViewById(R.id.keyHash).setOnClickListener(v -> btService.send("#"));
+        findViewById(R.id.keyStar).setOnClickListener(v ->
+                btService.send(prefs.getString("numpad_star", "*")));
+        findViewById(R.id.keyHash).setOnClickListener(v ->
+                btService.send(prefs.getString("numpad_hash", "#")));
     }
 
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNav);
-        nav.setSelectedItemId(R.id.nav_controller);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if      (id == R.id.nav_devices)  startActivity(new Intent(this, DeviceActivityList.class));
-            else if (id == R.id.nav_terminal) startActivity(new Intent(this, TerminalActivity.class));
-            else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
-            else if (id == R.id.nav_ai)     startActivity(new Intent(this, AIControlActivity.class));
+            if      (id == R.id.nav_controller) return true; // already here
+            else if (id == R.id.nav_devices)    navigateTo(DeviceActivityList.class);
+            else if (id == R.id.nav_terminal)   navigateTo(TerminalActivity.class);
+            else if (id == R.id.nav_settings)   navigateTo(SettingsActivity.class);
+            else if (id == R.id.nav_ai)         navigateTo(AIControlActivity.class);
             return true;
         });
     }

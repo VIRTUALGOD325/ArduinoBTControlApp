@@ -22,8 +22,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/stat_sys_data_bluetooth"
-            android:tint="#9ECAFF"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            app:tint="#9ECAFF" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -72,14 +72,25 @@
                 android:layout_marginEnd="12dp"/>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/landscapeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:text="🎮"
+            android:textSize="16sp"
+            android:background="@drawable/bg_card_dark"
+            android:layout_marginEnd="8dp"/>
+
         <ImageView
             android:id="@+id/settingsBtn"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_manage"
-            android:tint="#9ECAFF"
             android:layout_marginEnd="14dp"
-            android:padding="2dp"/>
+            android:padding="2dp"
+            app:tint="#9ECAFF" />
 
         <Button
             android:id="@+id/disconnectBtn"
@@ -163,6 +174,86 @@
                     <Button android:id="@+id/btnBack" android:layout_width="70dp" android:layout_height="70dp" android:text="▼" android:textColor="#9ECAFF" android:textSize="20sp" android:backgroundTint="#1E1E1E"/>
                     <Space android:layout_width="70dp" android:layout_height="70dp"/>
                 </GridLayout>
+
+                <!-- D-Pad mode controls -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <!-- Momentary / Latch toggle -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/btnMomentary"
+                            android:layout_width="100dp"
+                            android:layout_height="match_parent"
+                            android:text="MOMENTARY"
+                            android:gravity="center"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#E5E2E1"
+                            android:background="#1E3A5F"/>
+
+                        <TextView
+                            android:id="@+id/btnLatchMode"
+                            android:layout_width="64dp"
+                            android:layout_height="match_parent"
+                            android:text="LATCH"
+                            android:gravity="center"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#6B7280"
+                            android:background="#1A1A1A"/>
+                    </LinearLayout>
+
+                    <!-- Send-on toggle (hidden in Latch mode) -->
+                    <LinearLayout
+                        android:id="@+id/sendOnControls"
+                        android:layout_width="wrap_content"
+                        android:layout_height="26dp"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="6dp">
+
+                        <TextView
+                            android:id="@+id/sendOnPress"
+                            android:layout_width="56dp"
+                            android:layout_height="match_parent"
+                            android:text="PRESS"
+                            android:gravity="center"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:textColor="#E5E2E1"
+                            android:background="#1E3A5F"/>
+
+                        <TextView
+                            android:id="@+id/sendOnRelease"
+                            android:layout_width="64dp"
+                            android:layout_height="match_parent"
+                            android:text="RELEASE"
+                            android:gravity="center"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:textColor="#6B7280"
+                            android:background="#1A1A1A"/>
+
+                        <TextView
+                            android:id="@+id/sendOnBoth"
+                            android:layout_width="44dp"
+                            android:layout_height="match_parent"
+                            android:text="BOTH"
+                            android:gravity="center"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:textColor="#6B7280"
+                            android:background="#1A1A1A"/>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <!-- Joystick Container -->
@@ -361,12 +452,18 @@
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
+        android:fitsSystemWindows="false"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#161616"
+        android:background="@drawable/bg_bottom_nav_float"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:elevation="16dp"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="selected"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

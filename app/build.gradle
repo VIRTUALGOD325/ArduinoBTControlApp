@@ -3,6 +3,14 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+// Release signing is loaded from a gitignored keystore.properties at the project root,
+// so no keystore or password is ever committed to version control.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.eduprime.arduinobt'
     compileSdk {
@@ -16,17 +24,37 @@ android {
         minSdk 23
         targetSdk 36
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile     rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias      keystoreProperties['keyAlias']
+                keyPassword   keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        stable {
+            initWith release
+            signingConfig signingConfigs.debug   // debug cert — installable without Play Store
+            minifyEnabled false
+            versionNameSuffix ""                 // clean version, no "-stable" suffix in name
+            matchingFallbacks = ['release']
+        }
     }
+
 
     // Build Features
     buildFeatures{
@@ -37,6 +65,20 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+// Copy stable APK to project-root/Dist/ with a versioned filename
+tasks.register('copyStableToDist') {
+    dependsOn 'assembleStable'
+    doLast {
+        def version = android.defaultConfig.versionName
+        def src  = file("build/outputs/apk/stable/app-stable.apk")
+        def dist = rootProject.file("Dist")
+        dist.mkdirs()
+        def dest = new File(dist, "ArduinoBT-v${version}-stable.apk")
+        src.withInputStream { is -> dest.withOutputStream { os -> os << is } }
+        println "✅  APK copied to: ${dest.absolutePath}"
     }
 }
 
@@ -51,6 +93,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.13.0'
     implementation platform('com.google.firebase:firebase-bom:33.1.0')
     implementation libs.firebase.auth
+    implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     def camerax_version = "1.5.3"
     implementation "androidx.camera:camera-core:$camerax_version"

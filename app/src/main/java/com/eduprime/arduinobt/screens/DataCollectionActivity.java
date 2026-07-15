@@ -33,8 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.eduprime.arduinobt.BaseActivity;
 import com.eduprime.arduinobt.R;
-import com.eduprime.arduinobt.ai.ObjectDetectionManager;
-import com.eduprime.arduinobt.ai.TrainingDataManager;
+import com.eduprime.arduinobt.AI.ObjectDetectionManager;
+import com.eduprime.arduinobt.AI.TrainingDataManager;
 import com.eduprime.arduinobt.notifications.NotificationHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -97,6 +97,7 @@ public class DataCollectionActivity extends BaseActivity {
         captureBtn.setOnClickListener(v -> capturePhoto());
         findViewById(R.id.btnChangeClass).setOnClickListener(v -> showClassPicker());
         findViewById(R.id.btnAddClass).setOnClickListener(v -> showAddClassDialog());
+        findViewById(R.id.btnNewModel).setOnClickListener(v -> confirmNewModel());
         findViewById(R.id.btnExport).setOnClickListener(v -> exportModel());
         findViewById(R.id.btnImport).setOnClickListener(v -> importModel());
 
@@ -108,6 +109,11 @@ public class DataCollectionActivity extends BaseActivity {
         }
 
         refreshClassList();
+
+        // On first open, prompt the user how they want to start if data exists
+        if (!trainingManager.getClasses().isEmpty()) {
+            showModelStartupDialog();
+        }
     }
 
     // ─── Camera ──────────────────────────────────────────────────────────────
@@ -330,6 +336,46 @@ public class DataCollectionActivity extends BaseActivity {
 
     // ─── Class management ────────────────────────────────────────────────────
 
+    private void showModelStartupDialog() {
+        int classCount  = trainingManager.getClasses().size();
+        int totalPhotos = trainingManager.getTotalSampleCount();
+        String summary  = classCount + " class" + (classCount == 1 ? "" : "es")
+                + ", " + totalPhotos + " photo" + (totalPhotos == 1 ? "" : "s");
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("🤖 Existing Model Found")
+                .setMessage("You have a trained model with " + summary + ".\nWhat would you like to do?")
+                .setCancelable(false)
+                .setPositiveButton("Continue Existing", (d, w) -> { /* keep data, do nothing */ })
+                .setNegativeButton("Start New Model", (d, w) -> confirmNewModel())
+                .setNeutralButton("Import a Model", (d, w) -> importModel())
+                .show();
+    }
+
+    private void confirmNewModel() {
+        int classCount  = trainingManager.getClasses().size();
+        int totalPhotos = trainingManager.getTotalSampleCount();
+
+        if (classCount == 0) {
+            Toast.makeText(this, "Nothing to clear — already empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("🆕 Start New Model?")
+                .setMessage("This will permanently delete all " + classCount + " classes and "
+                        + totalPhotos + " training photos. Consider exporting first.")
+                .setPositiveButton("DELETE & START FRESH", (d, w) -> {
+                    trainingManager.clearAll();
+                    selectedClass = null;
+                    refreshClassList();
+                    updateCountDisplay();
+                    Toast.makeText(this, "✅ Cleared — ready to train a new model!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("CANCEL", null)
+                .show();
+    }
+
     private void showAddClassDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_class, null, false);
         EditText nameInput  = dialogView.findViewById(R.id.classNameInput);
@@ -459,12 +505,30 @@ public class DataCollectionActivity extends BaseActivity {
                 Toast.makeText(DataCollectionActivity.this,
                         "Selected: " + tc.emoji + " " + tc.name, Toast.LENGTH_SHORT).show();
             });
+            h.delete.setOnClickListener(v -> {
+                String className = tc.name;
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(DataCollectionActivity.this)
+                        .setTitle("Remove " + tc.emoji + " " + className + "?")
+                        .setMessage("All " + tc.sampleLabels.size() + " training photos for this class will be deleted and the robot won't recognise it anymore.")
+                        .setPositiveButton("REMOVE", (d, w) -> {
+                            trainingManager.deleteClass(className);
+                            if (className.equals(selectedClass)) {
+                                selectedClass = null;
+                                updateCountDisplay();
+                            }
+                            refreshClassList();
+                            Toast.makeText(DataCollectionActivity.this,
+                                    "Removed " + className, Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("CANCEL", null)
+                        .show();
+            });
         }
 
         @Override public int getItemCount() { return data.size(); }
 
         class VH extends RecyclerView.ViewHolder {
-            TextView emoji, name, count, command, select;
+            TextView emoji, name, count, command, select, delete;
             VH(View v) {
                 super(v);
                 emoji   = v.findViewById(R.id.classEmoji);
@@ -472,6 +536,7 @@ public class DataCollectionActivity extends BaseActivity {
                 count   = v.findViewById(R.id.sampleCount);
                 command = v.findViewById(R.id.classCommand);
                 select  = v.findViewById(R.id.btnSelect);
+                delete  = v.findViewById(R.id.btnDeleteClass);
             }
         }
     }

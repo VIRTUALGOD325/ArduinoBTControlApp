@@ -67,6 +67,10 @@ public class BluetoothService {
     private Context appContext;
     private OnConnectCallback pendingConnectCallback;
 
+    // Line ending appended to every send() command. Configurable in Settings
+    // ("" = none, "\n" = LF, "\r\n" = CRLF). Defaults to LF for backward compat.
+    private String lineEnding = "\n";
+
     private BluetoothService() {}
 
     public static BluetoothService getInstance() {
@@ -90,6 +94,8 @@ public class BluetoothService {
         if (socket != null && socket.isConnected()) disconnect();
         appContext = context.getApplicationContext();
         pendingConnectCallback = callback;
+        lineEnding = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                .getString("line_ending", "\n");
 
         if (device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
             connectBle(device);
@@ -216,9 +222,14 @@ public class BluetoothService {
         }
     }
 
-    /** Send a command appending '\n' (used by all controls). Notifies listeners. */
+    /** Sets the line ending appended by send(): "" (none), "\n" (LF), or "\r\n" (CRLF). */
+    public void setLineEnding(String ending) {
+        lineEnding = ending == null ? "" : ending;
+    }
+
+    /** Send a command appending the configured line ending (used by all controls). Notifies listeners. */
     public void send(String command) {
-        sendRaw(command + "\n");
+        sendRaw(command + lineEnding);
         mainHandler.post(() -> {
             for (OnDataListener l : new ArrayList<>(listeners)) l.onDataSent(command);
         });

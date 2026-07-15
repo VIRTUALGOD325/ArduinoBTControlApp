@@ -60,22 +60,48 @@
             </intent-filter>
         </activity>
         <activity android:name=".SplashActivity" android:exported="false"/>
+        <activity android:name=".ConnectionTypeActivity" android:exported="false"/>
+        <activity android:name=".IoTLoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".IoTSignUpActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".IoTDashboardActivity" android:exported="false"/>
+        <activity android:name=".IoTButtonControlActivity" android:exported="false"/>
+        <activity android:name=".IoTButtonSettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".IoTJoystickActivity" android:exported="false"/>
+        <activity android:name=".IoTSliderActivity" android:exported="false"/>
+        <activity android:name=".IoTTerminalActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".IoTSpeechToTextActivity" android:exported="false"/>
+        <activity android:name=".IoTTextToSpeechActivity" android:exported="false"/>
+        <activity android:name=".IoTCameraActivity" android:exported="false"/>
+        <activity android:name=".IoTAIControlActivity" android:exported="false"/>
         <activity android:name=".LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".SetupActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".screens.DeviceActivityList" android:exported="false"/>
-        <activity android:name=".screens.ControllerActivity" android:exported="false"/>
-        <activity android:name=".screens.TerminalActivity" android:exported="false"/>
+        <activity android:name=".screens.DeviceActivityList" android:exported="false" android:launchMode="singleTop"/>
+        <activity android:name=".screens.ControllerActivity" android:exported="false" android:launchMode="singleTop"/>
+        <activity android:name=".screens.TerminalActivity" android:exported="false" android:launchMode="singleTop"/>
         <activity android:name=".screens.SettingsActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"/>
         <activity android:name=".led.LedActivity" android:exported="false"/>
         <activity android:name=".camera.CameraActivity" android:exported="false"/>
-        <activity android:name=".screens.AIControlActivity" android:exported="false"/>
+        <activity android:name=".screens.AIControlActivity" android:exported="false" android:launchMode="singleTop"/>
+        <activity android:name=".screens.AISettingsActivity" android:exported="false"/>
         <activity android:name=".screens.DataCollectionActivity" android:exported="false"/>
+        <activity android:name=".screens.LandscapeControllerActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"/>
     </application>
 
 </manifest>

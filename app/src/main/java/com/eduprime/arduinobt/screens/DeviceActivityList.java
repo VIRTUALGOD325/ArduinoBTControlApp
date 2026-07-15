@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.eduprime.arduinobt.BaseActivity;
+import com.eduprime.arduinobt.ConnectionTypeActivity;
 import com.eduprime.arduinobt.R;
 import com.eduprime.arduinobt.notifications.NotificationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -104,6 +106,27 @@ public class DeviceActivityList extends BaseActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(v -> loadPairedDevices());
 
+        // Switch to IoT
+        TextView switchToIotBtn = findViewById(R.id.switchToIotBtn);
+        switchToIotBtn.setOnClickListener(v -> switchToIoT());
+
+        // Overflow menu — IoT/WiFi and AI Lab shortcuts
+        TextView overflowBtn = findViewById(R.id.overflowMenuBtn);
+        overflowBtn.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(this, v);
+            popup.getMenu().add(0, 1, 0, "🌐  Switch to IoT / WiFi");
+            popup.getMenu().add(0, 2, 1, "🤖  AI Lab");
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == 1) {
+                    switchToIoT();
+                } else if (item.getItemId() == 2) {
+                    startActivity(new Intent(this, AIControlActivity.class));
+                }
+                return true;
+            });
+            popup.show();
+        });
+
         NotificationHelper.createChannels(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -113,7 +136,28 @@ public class DeviceActivityList extends BaseActivity {
             }
         }
         setupBottomNav();
+        setupOnBackPressed();
         loadPairedDevices();
+    }
+
+    private void setupOnBackPressed() {
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                new MaterialAlertDialogBuilder(DeviceActivityList.this)
+                        .setTitle("Exit App")
+                        .setMessage("Are you sure you want to exit?")
+                        .setPositiveButton("Exit", (dialog, which) -> finishAffinity())
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
+    }
+
+    private void switchToIoT() {
+        getSharedPreferences("connection", MODE_PRIVATE).edit().remove("type").apply();
+        startActivity(new Intent(this, ConnectionTypeActivity.class));
+        finish();
     }
 
     private void loadPairedDevices() {
@@ -203,6 +247,8 @@ public class DeviceActivityList extends BaseActivity {
         if (!isScanning && bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
             startBleScan();
         }
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        if (bottomNav != null) bottomNav.setSelectedItemId(R.id.nav_devices);
     }
 
     @Override
@@ -219,13 +265,13 @@ public class DeviceActivityList extends BaseActivity {
 
     private void setupBottomNav() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        bottomNav.setSelectedItemId(R.id.nav_devices);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_controller)  startActivity(new Intent(this, ControllerActivity.class));
-            else if (id == R.id.nav_terminal)   startActivity(new Intent(this, TerminalActivity.class));
-            else if (id == R.id.nav_settings)   startActivity(new Intent(this, SettingsActivity.class));
-            else if (id == R.id.nav_ai)     startActivity(new Intent(this, AIControlActivity.class));
+            if      (id == R.id.nav_devices)    return true; // already here
+            else if (id == R.id.nav_controller) navigateTo(ControllerActivity.class);
+            else if (id == R.id.nav_terminal)   navigateTo(TerminalActivity.class);
+            else if (id == R.id.nav_settings)   navigateTo(SettingsActivity.class);
+            else if (id == R.id.nav_ai)         navigateTo(AIControlActivity.class);
             return true;
         });
     }

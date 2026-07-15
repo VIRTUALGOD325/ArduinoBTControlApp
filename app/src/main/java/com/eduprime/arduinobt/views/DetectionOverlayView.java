@@ -8,7 +8,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.eduprime.arduinobt.ai.ObjectDetectionManager.DetectionResult;
+import com.eduprime.arduinobt.AI.ObjectDetectionManager.DetectionResult;
 
 import java.util.ArrayList;
 import java.util.List;

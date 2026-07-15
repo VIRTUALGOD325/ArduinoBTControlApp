@@ -1,7 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.ArduinoBTControl" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Active indicator pill behind selected nav item (dark mode) -->
+        <item name="colorSecondaryContainer">#2C2C3A</item>
+        <!-- Icon/label color inside the active indicator (dark mode) -->
+        <item name="colorOnSecondaryContainer">#9ECAFF</item>
     </style>
 </resources>

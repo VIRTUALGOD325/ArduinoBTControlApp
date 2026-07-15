@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.eduprime.arduinobt.screens.AIControlActivity;
 import com.eduprime.arduinobt.screens.DeviceActivityList;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -17,21 +18,29 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            SharedPreferences authPrefs     = getSharedPreferences("auth", MODE_PRIVATE);
-            SharedPreferences settingsPrefs = getSharedPreferences("settings", MODE_PRIVATE);
-            boolean guestMode    = authPrefs.getBoolean("guest", false);
-            boolean pinVerified  = authPrefs.getBoolean("pin_verified", false);
+            SharedPreferences settingsPrefs   = getSharedPreferences("settings", MODE_PRIVATE);
+            SharedPreferences connectionPrefs = getSharedPreferences("connection", MODE_PRIVATE);
+
             boolean firebaseAuth = FirebaseAuth.getInstance().getCurrentUser() != null;
             boolean setupDone    = settingsPrefs.getBoolean("setup_done", false);
+            String  connType     = connectionPrefs.getString("type", null);
 
-            if (firebaseAuth || guestMode || pinVerified) {
-                if (!setupDone) {
-                    startActivity(new Intent(this, SetupActivity.class));
+            if (connType == null) {
+                // First launch — let user choose connection type
+                startActivity(new Intent(this, ConnectionTypeActivity.class));
+            } else if ("AI".equals(connType)) {
+                startActivity(new Intent(this, AIControlActivity.class));
+            } else if ("IOT".equals(connType)) {
+                if (firebaseAuth) {
+                    startActivity(new Intent(this, IoTDashboardActivity.class));
                 } else {
-                    startActivity(new Intent(this, DeviceActivityList.class));
+                    startActivity(new Intent(this, IoTLoginActivity.class));
                 }
             } else {
-                startActivity(new Intent(this, LoginActivity.class));
+                // BT path — no login required
+                startActivity(new Intent(this, setupDone
+                        ? DeviceActivityList.class
+                        : SetupActivity.class));
             }
             finish();
         }, 2000);

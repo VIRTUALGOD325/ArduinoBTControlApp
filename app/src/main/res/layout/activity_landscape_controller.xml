@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D0D">
+
+    <!-- Vertical guideline splitting joystick (left) from controls (right) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/midGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="366dp" />
+
+    <!-- ── Thin top status bar ── -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="#CC000000"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:id="@+id/btDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/circle_red"/>
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Device"
+            android:textColor="#E5E2E1"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:layout_marginStart="6dp"/>
+
+        <TextView
+            android:id="@+id/connStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CONNECTED"
+            android:textColor="#4CAF50"
+            android:textSize="9sp"
+            android:layout_marginStart="6dp"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="18dp"
+            android:background="#333333"
+            android:layout_marginHorizontal="10dp"/>
+
+        <!-- Last command sent — mini terminal readout -->
+        <TextView
+            android:id="@+id/lastCmd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="—"
+            android:textColor="#9ECAFF"
+            android:textSize="11sp"
+            android:fontFamily="monospace"/>
+
+        <!-- Latch toggle -->
+        <TextView
+            android:id="@+id/latchToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="59dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_card_dark"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:text="LATCH"
+            android:textColor="#89919D"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+
+        <!-- Gyro toggle -->
+        <TextView
+            android:id="@+id/gyroToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="59dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_card_dark"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:text="🌀 GYRO"
+            android:textColor="#89919D"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+
+        <!-- Exit landscape -->
+        <TextView
+            android:id="@+id/exitBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="59dp"
+            android:background="@drawable/bg_card_dark"
+            android:gravity="center"
+            android:paddingHorizontal="12dp"
+            android:text="✕ EXIT"
+            android:textColor="#FF6B6B"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- ── Left: full-height joystick ── -->
+    <com.eduprime.arduinobt.views.JoystickView
+        android:id="@+id/joystick"
+        android:layout_width="264dp"
+        android:layout_height="226dp"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/midGuide"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar" />
+
+    <!-- ── Right: XYAB + DPAD ── -->
+    <LinearLayout
+        android:id="@+id/rightPanel"
+        android:layout_width="353dp"
+        android:layout_height="346dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/midGuide"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <!-- XYAB — 2×2 with gamepad colours -->
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:columnCount="2"
+            android:rowCount="2">
+
+            <Button
+                android:id="@+id/btnX"
+                android:layout_width="58dp"
+                android:layout_height="52dp"
+                android:layout_margin="3dp"
+                android:backgroundTint="#1E2A3A"
+                android:text="X"
+                android:textColor="#9ECAFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnY"
+                android:layout_width="62dp"
+                android:layout_height="52dp"
+                android:layout_margin="3dp"
+                android:backgroundTint="#1A2A1E"
+                android:text="Y"
+                android:textColor="#A8FF78"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnA"
+                android:layout_width="64dp"
+                android:layout_height="52dp"
+                android:layout_margin="3dp"
+                android:backgroundTint="#2A2A1A"
+                android:text="A"
+                android:textColor="#FFD700"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnB"
+                android:layout_width="61dp"
+                android:layout_height="52dp"
+                android:layout_margin="3dp"
+                android:backgroundTint="#2A1A1A"
+                android:text="B"
+                android:textColor="#FF6B6B"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </GridLayout>
+
+        <!-- DPAD — 3×3 compact -->
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <Space
+                android:layout_width="54dp"
+                android:layout_height="54dp" />
+
+            <Button
+                android:id="@+id/dpadUp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:backgroundTint="#1E1E1E"
+                android:text="▲"
+                android:textColor="#9ECAFF"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="54dp"
+                android:layout_height="54dp" />
+
+            <Button
+                android:id="@+id/dpadLeft"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:backgroundTint="#1E1E1E"
+                android:text="◀"
+                android:textColor="#9ECAFF"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/dpadStop"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:backgroundTint="#2A2A2A" />
+
+            <Button
+                android:id="@+id/dpadRight"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:backgroundTint="#1E1E1E"
+                android:text="▶"
+                android:textColor="#9ECAFF"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="54dp"
+                android:layout_height="54dp" />
+
+            <Button
+                android:id="@+id/dpadDown"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:backgroundTint="#1E1E1E"
+                android:text="▼"
+                android:textColor="#9ECAFF"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="54dp"
+                android:layout_height="54dp" />
+        </GridLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

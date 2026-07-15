@@ -1,4 +1,4 @@
-package com.eduprime.arduinobt.ai;
+package com.eduprime.arduinobt.AI;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -76,6 +76,7 @@ public class TrainingDataManager {
 
     private final Context context;
     private Map<String, TrainingClass> classes;
+    private float matchThreshold = 0.15f;
 
     public TrainingDataManager(Context context) {
         this.context = context.getApplicationContext();
@@ -96,6 +97,10 @@ public class TrainingDataManager {
     public int getSampleCount(String className) {
         TrainingClass tc = classes.get(className);
         return tc != null ? tc.sampleLabels.size() : 0;
+    }
+
+    public void setMatchThreshold(float threshold) {
+        this.matchThreshold = Math.max(0f, Math.min(1f, threshold));
     }
 
     public int getTotalSampleCount() {
@@ -191,7 +196,7 @@ public class TrainingDataManager {
         }
 
         // Must clear minimum confidence
-        if (bestClass == null || bestScore < 0.15f) return null;
+        if (bestClass == null || bestScore < matchThreshold) return null;
 
         // Must be meaningfully ahead of any runner-up (reduces false positives)
         if (classes.size() > 1 && secondScore > 0f && bestScore < secondScore * 1.4f) return null;

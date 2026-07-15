@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#201F1F"
@@ -11,8 +12,8 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@android:drawable/stat_sys_data_bluetooth"
-        android:tint="#9ECAFF"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        app:tint="#9ECAFF" />
 
     <LinearLayout
         android:layout_width="0dp"

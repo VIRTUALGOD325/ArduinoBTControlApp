@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0D0D">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/backBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Back"
+            android:textColor="#9ECAFF"
+            android:textSize="14sp"
+            android:padding="4dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Slider Control"
+            android:textColor="#E5E2E1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <View android:layout_width="60dp" android:layout_height="1dp"/>
+    </LinearLayout>
+
+    <!-- Big value display card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="#141B24"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/valueLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="128"
+                android:textColor="#9ECAFF"
+                android:textSize="72sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace"/>
+
+            <TextView
+                android:id="@+id/percentLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="50%"
+                android:textColor="#6B7280"
+                android:textSize="18sp"
+                android:layout_marginTop="-8dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Slider -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="255"
+            android:progress="128"
+            android:progressTint="#9ECAFF"
+            android:thumbTint="#9ECAFF"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#4A5568"
+                android:textSize="12sp"/>
+
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="255"
+                android:textColor="#4A5568"
+                android:textSize="12sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Preset buttons -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PRESETS"
+        android:textColor="#9ECAFF"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.15"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="12dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <TextView android:id="@+id/preset0"   android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:text="0%"   android:textColor="#E5E2E1" android:textSize="13sp" android:gravity="center" android:background="@drawable/btn_control_dark" android:layout_marginEnd="6dp"/>
+        <TextView android:id="@+id/preset25"  android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:text="25%"  android:textColor="#E5E2E1" android:textSize="13sp" android:gravity="center" android:background="@drawable/btn_control_dark" android:layout_marginEnd="6dp"/>
+        <TextView android:id="@+id/preset50"  android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:text="50%"  android:textColor="#E5E2E1" android:textSize="13sp" android:gravity="center" android:background="@drawable/btn_control_dark" android:layout_marginEnd="6dp"/>
+        <TextView android:id="@+id/preset75"  android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:text="75%"  android:textColor="#E5E2E1" android:textSize="13sp" android:gravity="center" android:background="@drawable/btn_control_dark" android:layout_marginEnd="6dp"/>
+        <TextView android:id="@+id/preset100" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:text="100%" android:textColor="#E5E2E1" android:textSize="13sp" android:gravity="center" android:background="@drawable/btn_control_dark"/>
+    </LinearLayout>
+
+</LinearLayout>

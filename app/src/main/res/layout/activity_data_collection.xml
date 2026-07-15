@@ -182,12 +182,25 @@
             android:background="@drawable/bg_button_pink"
             android:layout_marginTop="8dp"/>
 
-        <!-- Export / Import row -->
+        <!-- Model management row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/btnNewModel"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:gravity="center"
+                android:text="🆕 New Model"
+                android:textColor="#FF6B6B"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_card_dark"/>
 
             <TextView
                 android:id="@+id/btnExport"
@@ -196,9 +209,9 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
                 android:gravity="center"
-                android:text="📥 Export Model"
+                android:text="📥 Export"
                 android:textColor="#A8FF78"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/bg_card_dark"/>
 
@@ -207,11 +220,10 @@
                 android:layout_width="0dp"
                 android:layout_height="44dp"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
                 android:gravity="center"
-                android:text="📂 Load Model"
+                android:text="📂 Import"
                 android:textColor="#9ECAFF"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:background="@drawable/bg_card_dark"/>
 

@@ -181,14 +181,21 @@ public class TerminalActivity extends BaseActivity implements BluetoothService.O
 
     private void setupBottomNav() {
         BottomNavigationView nav = findViewById(R.id.bottomNav);
-        nav.setSelectedItemId(R.id.nav_terminal);
         nav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if      (id == R.id.nav_devices)    startActivity(new Intent(this, DeviceActivityList.class));
-            else if (id == R.id.nav_controller) startActivity(new Intent(this, ControllerActivity.class));
-            else if (id == R.id.nav_ai)         startActivity(new Intent(this, AIControlActivity.class));
-            else if (id == R.id.nav_settings)   startActivity(new Intent(this, SettingsActivity.class));
+            if      (id == R.id.nav_terminal)   return true; // already here
+            else if (id == R.id.nav_devices)    navigateTo(DeviceActivityList.class);
+            else if (id == R.id.nav_controller) navigateTo(ControllerActivity.class);
+            else if (id == R.id.nav_ai)         navigateTo(AIControlActivity.class);
+            else if (id == R.id.nav_settings)   navigateTo(SettingsActivity.class);
             return true;
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BottomNavigationView nav = findViewById(R.id.bottomNav);
+        if (nav != null) nav.setSelectedItemId(R.id.nav_terminal);
     }
 }

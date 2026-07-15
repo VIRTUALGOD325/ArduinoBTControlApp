@@ -10,6 +10,14 @@
 .DS_Store
 /build
 /captures
+
+# Release signing — NEVER commit these
+keystore.properties
+*.jks
+*.keystore
+
+# Build artifacts / distributables
+/Dist
 .externalNativeBuild
 .cxx
 local.properties

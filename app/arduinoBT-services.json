@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "807452855612",
+    "firebase_url": "https://iot-ep-e2562-default-rtdb.firebaseio.com",
+    "project_id": "iot-ep-e2562",
+    "storage_bucket": "iot-ep-e2562.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807452855612:android:f0f171dfbd2a6390fb2239",
+        "android_client_info": {
+          "package_name": "com.eduprime.iot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDckB1zPYKN1VjhizYYpznp0o9WyfW9gaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

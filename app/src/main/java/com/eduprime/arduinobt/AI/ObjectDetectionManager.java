@@ -1,4 +1,4 @@
-package com.eduprime.arduinobt.ai;
+package com.eduprime.arduinobt.AI;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
@@ -53,6 +53,7 @@ public class ObjectDetectionManager implements ImageAnalysis.Analyzer {
     // Slightly lower threshold for live frames so we don't miss weaker matches
     private final ImageLabeler liveLabeler;
     private DetectionListener listener;
+    private float confidenceThreshold = 0f;
 
     public ObjectDetectionManager() {
         ObjectDetectorOptions opts = new ObjectDetectorOptions.Builder()
@@ -73,6 +74,10 @@ public class ObjectDetectionManager implements ImageAnalysis.Analyzer {
 
     public void setListener(DetectionListener listener) {
         this.listener = listener;
+    }
+
+    public void setConfidenceThreshold(float threshold) {
+        this.confidenceThreshold = threshold;
     }
 
     @Override
@@ -107,6 +112,7 @@ public class ObjectDetectionManager implements ImageAnalysis.Analyzer {
                             label      = obj.getLabels().get(0).getText();
                             confidence = obj.getLabels().get(0).getConfidence();
                         }
+                        if (confidence < confidenceThreshold) continue;
                         int tid = obj.getTrackingId() != null ? obj.getTrackingId() : -1;
                         results.add(new DetectionResult(
                                 new RectF(obj.getBoundingBox()), label, confidence, tid));

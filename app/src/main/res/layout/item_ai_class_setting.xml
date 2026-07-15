@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_card_dark"
+    android:padding="14dp"
+    android:layout_marginBottom="6dp">
+
+    <!-- Emoji badge -->
+    <TextView
+        android:id="@+id/classEmoji"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="🎯"
+        android:textSize="24sp"
+        android:background="#1A1F2A"/>
+
+    <!-- Name + sample count -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/className"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Object"
+            android:textColor="#E5E2E1"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/sampleInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="0 photos trained"
+            android:textColor="#89919D"
+            android:textSize="11sp"/>
+    </LinearLayout>
+
+    <!-- Command label + input -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SEND"
+            android:textColor="#89919D"
+            android:textSize="9sp"
+            android:letterSpacing="0.08"/>
+
+        <EditText
+            android:id="@+id/classCommand"
+            android:layout_width="64dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:hint="F"
+            android:textColor="#9ECAFF"
+            android:textColorHint="#2A3040"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_card_dark"
+            android:inputType="text"
+            android:maxLength="8"
+            android:padding="4dp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -22,8 +22,8 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/stat_sys_data_bluetooth"
-            android:tint="#9ECAFF"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            app:tint="#9ECAFF" />
 
         <TextView
             android:layout_width="0dp"
@@ -38,14 +38,14 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_sort_by_size"
-            android:tint="#9ECAFF"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="16dp"
+            app:tint="#9ECAFF" />
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_manage"
-            android:tint="#9ECAFF"/>
+            app:tint="#9ECAFF" />
     </LinearLayout>
 
     <!-- Serial Interface Header -->
@@ -245,12 +245,18 @@
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
+        android:fitsSystemWindows="false"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#161616"
+        android:background="@drawable/bg_bottom_nav_float"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:elevation="16dp"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="selected"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
