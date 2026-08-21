@@ -24,25 +24,25 @@ Deploy-readiness pass complete (see commit `d58d532`): permission-flow crash, BL
 
 ## Hardware
 
-| Module | Status |
-|--------|--------|
+| Module                    | Status    |
+| ------------------------- | --------- |
 | HC-05 (Classic Bluetooth) | Supported |
-| HM-10 (BLE) | Planned |
+| HM-10 (BLE)               | Planned   |
 
 ## Default Commands
 
-| Action | Default Command Sent |
-|--------|---------------------|
-| Forward | `F` |
-| Back | `B` |
-| Left | `L` |
-| Right | `R` |
-| Stop | `S` |
-| Speed | `SPD:<0-100>` |
-| Button A | `A` |
-| Button B | `BZ` |
-| Button C | `AUTO` |
-| Button D | `STOP` |
+| Action   | Default Command Sent |
+| -------- | -------------------- |
+| Forward  | `F`                |
+| Back     | `B`                |
+| Left     | `L`                |
+| Right    | `R`                |
+| Stop     | `S`                |
+| Speed    | `SPD:<0-100>`      |
+| Button A | `A`                |
+| Button B | `BZ`               |
+| Button C | `AUTO`             |
+| Button D | `STOP`             |
 
 All commands are configurable in the Settings screen.
 
@@ -94,12 +94,15 @@ app/src/main/java/com/eduprime/arduinobt/
 ## Setup
 
 ### 1. Clone and open
+
 ```bash
 git clone git@github.com:VIRTUALGOD325/ArduinoBTControlApp.git
 ```
+
 Open in Android Studio.
 
 ### 2. Firebase (required for Google Sign-In and the IoT dashboard)
+
 1. Go to [Firebase Console](https://console.firebase.google.com) → create a project
 2. Add an Android app with package `com.eduprime.arduinobt`
 3. Download `google-services.json` → place it in `app/`
@@ -110,9 +113,11 @@ Open in Android Studio.
 > If you skip Firebase, guest mode, PIN login, and direct-Bluetooth control still work without `google-services.json` — only Google Sign-In and the IoT/Firebase control flow need it.
 
 ### 3. Signing (required for a release build)
+
 `app/build.gradle`'s `release` build type reads a signing config from `keystore.properties` (gitignored, not included in this repo). Copy `keystore.properties.template` → `keystore.properties` and fill in your own keystore path/passwords, or generate a new upload keystore with `keytool -genkey -v -keystore <name>.jks -keyalg RSA -keysize 2048 -validity 10000 -alias <alias>`.
 
 ### 4. Pair your HC-05
+
 - Default pairing PIN: `1234` or `0000`
 - Pair in Android Bluetooth settings before opening the app
 - The app lists paired devices — tap one to connect
@@ -140,13 +145,13 @@ The `release` build type has `minifyEnabled true` / `shrinkResources true`; keep
 
 ### Pin Layout
 
-| Pin | Component |
-|-----|-----------|
-| 4   | LED Blue  |
-| 5   | Y         |
-| 6   | Buzzer    |
-| 12  | Motor IN1 |
-| 13  | Motor IN2 |
+| Pin     | Component             |
+| ------- | --------------------- |
+| 4       | LED Blue              |
+| 5       | Y                     |
+| 6       | Buzzer                |
+| 12      | Motor IN1             |
+| 13      | Motor IN2             |
 | 14 (A0) | Motor ENA (PWM speed) |
 
 ### Sketch
