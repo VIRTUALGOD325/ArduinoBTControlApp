@@ -42,8 +42,15 @@ public class ControllerActivity extends BaseActivity
     private static final int  MODE_DPAD = 0, MODE_JOYSTICK = 1, MODE_VOICE = 2, MODE_TILT = 3;
     private static final long THROTTLE_MS = 100;
     private static final int SEND_PRESS = 0, SEND_RELEASE = 1, SEND_BOTH = 2;
+    private static final int REQUEST_BT_CONNECT_PERMISSION = 3;
     private Long connectionStartTime;
     private TextView connectionTimer;
+
+    // Set once UI setup has run (only after permission state is resolved), so nothing
+    // below touches half-initialized fields.
+    private boolean uiInitialized = false;
+    private BluetoothDevice pendingDevice;
+    private boolean notConnectedToastShown = false;
 
     private BluetoothService btService;
     private SensorManager sensorManager;
@@ -105,17 +112,40 @@ public class ControllerActivity extends BaseActivity
         BluetoothDevice device = getIntent().getParcelableExtra("device");
         btService.addListener(this);
 
-        if (device != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
+        if (device != null && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // Defer all UI setup until permission state is resolved — see
+            // onRequestPermissionsResult() below.
+            pendingDevice = device;
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BT_CONNECT_PERMISSION);
+            return;
+        }
+
+        setupUi(device);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions,
+                                            @androidx.annotation.NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_BT_CONNECT_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setupUi(pendingDevice);
+            } else {
+                Toast.makeText(this, "Bluetooth permission is required to control the device",
+                        Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, DeviceActivityList.class));
+                finish();
             }
+            pendingDevice = null;
+        }
+    }
+
+    private void setupUi(BluetoothDevice device) {
+        if (uiInitialized) return;
+        uiInitialized = true;
+
+        if (device != null) {
             ((TextView) findViewById(R.id.deviceName)).setText(device.getName());
             if (!btService.isConnected()) {
                 updateStatus(false);
@@ -183,7 +213,7 @@ public class ControllerActivity extends BaseActivity
         findViewById(R.id.btnStop).setOnClickListener(v -> {
             java.util.Arrays.fill(latchActive, false);
             updateLatchVisuals();
-            btService.send(prefs.getString("cmd_stop", "S"));
+            if (canSend()) btService.send(prefs.getString("cmd_stop", "S"));
         });
 
         // Action buttons
@@ -207,6 +237,7 @@ public class ControllerActivity extends BaseActivity
         // Joystick — throttled, 8-quadrant, uses dedicated joy_* prefs
         ((JoystickView) findViewById(R.id.joystick)).setOnMoveListener((x, y) -> {
             if (!throttle()) return;
+            if (!canSend()) return;
             String cmd;
             if (Math.abs(x) < 20 && Math.abs(y) < 20) {
                 cmd = prefs.getString("joy_stop", "S");
@@ -325,6 +356,7 @@ public class ControllerActivity extends BaseActivity
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
         if (!throttle()) return;
+        if (!canSend()) return;
 
         float ax = event.values[0]; // tilt left(-) / right(+)
         float ay = event.values[1]; // tilt forward(+) / back(-)
@@ -347,6 +379,23 @@ public class ControllerActivity extends BaseActivity
         if (now - lastSendTime < THROTTLE_MS) return false;
         lastSendTime = now;
         return true;
+    }
+
+    /**
+     * Guards against sending while disconnected. Shows a "not connected" Toast at most
+     * once per disconnect event (reset once we're connected again) so mid-session BT
+     * drops from D-pad/joystick/voice/tilt aren't totally silent.
+     */
+    private boolean canSend() {
+        if (btService != null && btService.isConnected()) {
+            notConnectedToastShown = false;
+            return true;
+        }
+        if (!notConnectedToastShown) {
+            notConnectedToastShown = true;
+            Toast.makeText(this, "Not connected — command not sent", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 
     private void loadButtonLabels() {
@@ -417,6 +466,8 @@ public class ControllerActivity extends BaseActivity
             // they never emit the Stop command, so the output holds its state.
             boolean noStop = prefs.getBoolean(noStopKey, false);
 
+            if (action == MotionEvent.ACTION_DOWN && !canSend()) return true;
+
             if (dpadLatch) {
                 if (action == MotionEvent.ACTION_DOWN) {
                     if (!latchActive[btnIndex]) {
@@ -441,6 +492,7 @@ public class ControllerActivity extends BaseActivity
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
                         v.setPressed(false);
+                        if (!btService.isConnected()) break;
                         if (sendOn == SEND_RELEASE || sendOn == SEND_BOTH)
                             btService.send(cmd);
                         else if (!noStop)
@@ -458,10 +510,10 @@ public class ControllerActivity extends BaseActivity
             String cmd = prefs.getString(prefKey, defaultCmd);
             if (action == MotionEvent.ACTION_DOWN) {
                 v.setPressed(true);
-                if (sendOn == SEND_PRESS || sendOn == SEND_BOTH) btService.send(cmd);
+                if ((sendOn == SEND_PRESS || sendOn == SEND_BOTH) && canSend()) btService.send(cmd);
             } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 v.setPressed(false);
-                if (sendOn == SEND_RELEASE || sendOn == SEND_BOTH) btService.send(cmd);
+                if ((sendOn == SEND_RELEASE || sendOn == SEND_BOTH) && btService.isConnected()) btService.send(cmd);
             }
             return true;
         };

@@ -16,8 +16,10 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 /**
@@ -61,6 +63,12 @@ public class BluetoothService {
     private BluetoothGattCharacteristic bleWriteChar;
     private ConnectionType connectionType = ConnectionType.CLASSIC;
 
+    // BLE writes are async GATT ops — back-to-back writeCharacteristic() calls without
+    // waiting for the prior onCharacteristicWrite callback can silently drop on some
+    // stacks, so we queue them and drain one at a time from the callback.
+    private final Queue<byte[]> bleWriteQueue = new ArrayDeque<>();
+    private boolean bleWriteInFlight = false;
+
     private final List<OnDataListener> listeners = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -93,6 +101,11 @@ public class BluetoothService {
     public void connect(BluetoothDevice device, Context context, OnConnectCallback callback) {
         if (socket != null && socket.isConnected()) disconnect();
         appContext = context.getApplicationContext();
+        if (pendingConnectCallback != null) {
+            OnConnectCallback superseded = pendingConnectCallback;
+            pendingConnectCallback = null;
+            superseded.onConnectionFailed("Connection attempt superseded");
+        }
         pendingConnectCallback = callback;
         lineEnding = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
                 .getString("line_ending", "\n");
@@ -208,9 +221,34 @@ public class BluetoothService {
         @Override
         public void onCharacteristicWrite(BluetoothGatt g,
                                            BluetoothGattCharacteristic characteristic, int status) {
-            // write completed
+            // Previous write finished (successfully or not) — drain the next queued
+            // write, if any, so writes never overlap on the GATT stack.
+            drainBleWriteQueue();
         }
     };
+
+    @SuppressWarnings("MissingPermission")
+    private synchronized void drainBleWriteQueue() {
+        byte[] next = bleWriteQueue.poll();
+        if (next == null) {
+            bleWriteInFlight = false;
+            return;
+        }
+        bleWriteInFlight = true;
+        try {
+            bleWriteChar.setValue(next);
+            gatt.writeCharacteristic(bleWriteChar);
+        } catch (SecurityException e) {
+            bleWriteInFlight = false;
+            notifyConnectionLost();
+        }
+    }
+
+    private void notifyConnectionLost() {
+        mainHandler.post(() -> {
+            for (OnDataListener l : new ArrayList<>(listeners)) l.onConnectionLost();
+        });
+    }
 
     @SuppressWarnings("MissingPermission")
     private void enableNotify(BluetoothGattCharacteristic characteristic) {
@@ -240,12 +278,33 @@ public class BluetoothService {
     public void sendRaw(String raw) {
         byte[] bytes = raw.getBytes();
         if (gatt != null && bleWriteChar != null) {
-            bleWriteChar.setValue(bytes);
-            gatt.writeCharacteristic(bleWriteChar);
+            enqueueBleWrite(bytes);
             return;
         }
         if (outputStream == null) return;
-        try { outputStream.write(bytes); } catch (IOException e) { e.printStackTrace(); }
+        try {
+            outputStream.write(bytes);
+        } catch (IOException | SecurityException e) {
+            e.printStackTrace();
+            notifyConnectionLost();
+        }
+    }
+
+    /** Queue a BLE write; only one writeCharacteristic() is ever in flight at a time. */
+    @SuppressWarnings("MissingPermission")
+    private synchronized void enqueueBleWrite(byte[] bytes) {
+        if (bleWriteInFlight) {
+            bleWriteQueue.add(bytes);
+            return;
+        }
+        bleWriteInFlight = true;
+        try {
+            bleWriteChar.setValue(bytes);
+            gatt.writeCharacteristic(bleWriteChar);
+        } catch (SecurityException e) {
+            bleWriteInFlight = false;
+            notifyConnectionLost();
+        }
     }
 
     public boolean isConnected() {
@@ -272,7 +331,10 @@ public class BluetoothService {
         finally {
             socket = null; outputStream = null; inputStream = null;
             gatt = null; bleWriteChar = null;
-            instance = null;
+            synchronized (this) {
+                bleWriteQueue.clear();
+                bleWriteInFlight = false;
+            }
         }
     }
 
@@ -283,6 +345,9 @@ public class BluetoothService {
             while (!Thread.currentThread().isInterrupted() && isConnected()) {
                 try {
                     bytes = inputStream.read(buffer);
+                    if (bytes == -1) {
+                        throw new IOException("stream closed");
+                    }
                     final String data = new String(buffer, 0, bytes);
                     mainHandler.post(() -> {
                         for (OnDataListener l : new ArrayList<>(listeners)) l.onDataReceived(data);

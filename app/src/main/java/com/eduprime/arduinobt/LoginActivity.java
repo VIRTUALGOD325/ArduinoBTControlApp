@@ -3,6 +3,7 @@ package com.eduprime.arduinobt;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,6 +11,10 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import com.eduprime.arduinobt.screens.DeviceActivityList;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -104,17 +109,46 @@ public class LoginActivity extends BaseActivity {
             Toast.makeText(this, "Enter a 4-digit PIN", Toast.LENGTH_SHORT).show();
             return;
         }
-        String savedPin = prefs.getString("pin", null);
-        if (savedPin == null) {
-            prefs.edit().putString("pin", pin).apply();
+        String savedHash = prefs.getString("pin_hash", null);
+        if (savedHash == null) {
+            String salt = generateSalt();
+            String hash = hashPin(pin, salt);
+            prefs.edit().putString("pin_salt", salt).putString("pin_hash", hash).apply();
             Toast.makeText(this, "PIN set! Remember it for next time.", Toast.LENGTH_LONG).show();
             goToMain();
-        } else if (pin.equals(savedPin)) {
-            prefs.edit().putBoolean("pin_verified", true).apply();
-            goToMain();
         } else {
-            Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
-            pinInput.setText("");
+            String salt = prefs.getString("pin_salt", "");
+            if (hashPin(pin, salt).equals(savedHash)) {
+                prefs.edit().putBoolean("pin_verified", true).apply();
+                goToMain();
+            } else {
+                Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
+                pinInput.setText("");
+            }
+        }
+    }
+
+    /** Generates a per-install random salt for PIN hashing, Base64-encoded for storage. */
+    private static String generateSalt() {
+        byte[] salt = new byte[16];
+        new SecureRandom().nextBytes(salt);
+        return Base64.encodeToString(salt, Base64.NO_WRAP);
+    }
+
+    /**
+     * Salted SHA-256 hash of the PIN. The PIN is a low-stakes local convenience
+     * lock (not a critical secret), so a simple salted digest — rather than a
+     * slow KDF like PBKDF2/bcrypt — is an appropriate trade-off here.
+     */
+    private static String hashPin(String pin, String salt) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(Base64.decode(salt, Base64.NO_WRAP));
+            byte[] hashed = digest.digest(pin.getBytes());
+            return Base64.encodeToString(hashed, Base64.NO_WRAP);
+        } catch (NoSuchAlgorithmException e) {
+            // SHA-256 is guaranteed to be available on Android; this cannot happen.
+            throw new RuntimeException(e);
         }
     }
 
