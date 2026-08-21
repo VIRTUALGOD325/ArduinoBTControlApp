@@ -38,7 +38,17 @@ jobs:
         run: chmod +x gradlew
 
       - name: Write google-services.json
-        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+        run: printf '%s' '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+
+      - name: Validate google-services.json
+        run: |
+          echo "File size:"
+          wc -c app/google-services.json
+          echo "First 100 chars:"
+          head -c 100 app/google-services.json
+          echo ""
+          echo "Valid JSON check:"
+          python3 -m json.tool app/google-services.json > /dev/null && echo "VALID" || echo "INVALID"
 
       - name: Build debug
         run: ./gradlew assembleDebug
